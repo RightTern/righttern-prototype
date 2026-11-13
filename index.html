@@ -122,6 +122,21 @@ main.pwide{max-width:1280px}
 .gbadge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--ink);vertical-align:middle;border:1px solid var(--mute);border-radius:999px;padding:1px 9px;background:var(--surf);white-space:nowrap}
 .tgrp{margin-top:16px}
 .tlabel{font-size:13px;font-weight:600;color:var(--mute);margin-bottom:6px}
+.stats{display:grid;gap:12px;grid-template-columns:repeat(4,1fr);margin-bottom:18px}
+.stat{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:26px}
+.stat span{font-size:14px;color:var(--mute)}
+.stat.late b{color:var(--err)}
+.pill.late{border-color:var(--err);color:var(--err)}
+.facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:16px 0 0;font-size:15px}
+.facts dt{color:var(--mute)}
+.facts dd{margin:0;overflow-wrap:anywhere}
+.tblwrap{overflow-x:auto;background:var(--surf);border:1px solid var(--line);border-radius:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:14px}
+.tbl th,.tbl td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:13px;color:var(--mute);font-weight:600;white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}.facts{grid-template-columns:1fr}}
 @media(max-width:560px){.ck{grid-template-columns:1fr}}
 @media(max-width:560px){.types{grid-template-columns:1fr}}
 .cwrap{position:relative}
@@ -338,7 +353,7 @@ const FIELDS=["Design","Engineering","Marketing","Finance","Other"];
 const co=id=>S.cos.find(c=>c.id==id);
 const v=id=>document.getElementById(id).value.trim();
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2400)}
-function go(view,id){S.view=view;S.id=id||null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="verify")S.ver=null;if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
+function go(view,id){S.view=view;S.id=id||null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="verify")S.ver=null;if(view==="review")S.rv={checks:[false,false,false,false,false],note:""};if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
 function setRole(r){S.role=r;go(S.view==="home"?"home":(r==="student"?"browse":"mine"))}
 function start(r){if(!S.user)S.role=r;go(r==="student"?"browse":"mine")}
 function curTheme(){return document.documentElement.getAttribute("data-theme")||"light"}
@@ -347,7 +362,7 @@ function toggleTheme(){const n=curTheme()==="dark"?"light":"dark";document.docum
 try{const t=localStorage.getItem("rt-theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}
 function bar(){
 const nav0=S.role==="student"?[["home","Home"],["browse","Browse internships"],["matches","For you"],["applications","Applications"],["interviews","Interviews"]]:[["home","Home"],["mine","Dashboard"],["interviews","Interviews"],["post","Post an internship"]];
-const nav=S.user?nav0:S.role==="student"?nav0.filter(n=>["home","browse"].includes(n[0])):nav0.filter(n=>["home","mine","post"].includes(n[0]));
+const nav=S.user&&S.user.role==="admin"?ADMIN_NAV:S.user?nav0:S.role==="student"?nav0.filter(n=>["home","browse"].includes(n[0])):nav0.filter(n=>["home","mine","post"].includes(n[0]));
 document.getElementById("bar").innerHTML=`<button class="logo" onclick="go('home')" aria-label="RightTern home"><svg viewBox="636 300 654 966" aria-hidden="true"><circle cx="965" cy="444" r="137" fill="currentColor"/><path d="M690 650H1245Q1281 650 1281 690V1243Q1281 1256 1270 1250L1151 1130V870L750 1237Q715 1262 683 1235L655 1205Q635 1170 662 1141L1055 780H779V940L660 1062Q648 1062 648 1052V690Q648 650 690 650Z" fill="currentColor"/></svg><span><span class="r">Right</span><span class="t">Tern</span></span></button>
 <nav>${nav.map(n=>`<button class="${isOn(n[0])?"on":""}" onclick="go('${n[0]}')">${n[1]}${navBadge(n[0])}</button>`).join("")}</nav>
 ${authBtns()}
@@ -683,11 +698,11 @@ if(!(amt>0)){const e=document.getElementById("pp-err");e.textContent="Add what t
 S.jobs.unshift({id:S.next++,co:S.myCo.id,title,field:document.getElementById("pf").value,type:document.getElementById("py").value,pay:{amt:String(amt),per:document.getElementById("pp-per").value,note:v("pp-note")},loc:v("pc-loc")||S.myCo.loc,dur:v("pd")||"TBC",dl:v("pl")||"Open",skills:[...S.postSkills],desc:v("pe")||"Details coming soon."});
 toast("Internship published");go("mine")}
 function authBtns(){
-if(S.user)return `<div class="who"><button class="who-btn ${isOn(S.user.role==="student"?"profile":"mine")?"on":""}" onclick="go('${S.user.role==="student"?"profile":"mine"}')" aria-label="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}" title="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}">${avatarHtml(S.user.role==="student"?(S.profile&&S.profile.photo):(S.myCo&&S.myCo.logo),S.user.name,"sm")}<span class="uname">${esc(S.user.name)}</span>${S.user.role==="student"&&vetStatus()==="approved"?`<span title="Verified student" role="img" aria-label="Verified student">${VTICK(16)}</span>`:""}</button><button class="btn ghost sm" onclick="logout()">Log out</button></div>`;
+if(S.user)return `<div class="who"><button class="who-btn ${isOn(homeView())?"on":""}" onclick="go('${homeView()}')" aria-label="${homeLabel()}" title="${homeLabel()}">${avatarHtml(S.user.role==="student"?(S.profile&&S.profile.photo):(S.myCo&&S.myCo.logo),S.user.name,"sm")}<span class="uname">${esc(S.user.name)}</span>${S.user.role==="student"&&vetStatus()==="approved"?`<span title="Verified student" role="img" aria-label="Verified student">${VTICK(16)}</span>`:""}</button><button class="btn ghost sm" onclick="logout()">Log out</button></div>`;
 return `<div class="seg" role="group" aria-label="Viewing as"><button class="${S.role==="student"?"on":""}" onclick="setRole('student')">I&#8217;m a student</button><button class="${S.role==="business"?"on":""}" onclick="setRole('business')">I&#8217;m a business</button></div><button class="btn ghost sm" onclick="go('login')">Log in</button><button class="btn sm" onclick="go('signup')">Sign up</button>`}
 function gate(role,msg){
 if(!S.user)return `<div class="auth"><div class="panel"><h2>Log in to continue</h2><p class="meta" style="margin:6px 0 16px">${msg}</p><div class="cta-row"><button class="btn" onclick="needAuth('login')">Log in</button><button class="btn ghost" onclick="needAuth('signup')">Create an account</button></div></div></div>`;
-if(S.user.role!==role)return `<div class="auth"><div class="panel"><h2>This page is for ${role==="student"?"student":"business"} accounts</h2><p class="meta" style="margin:6px 0 16px">You are logged in as a ${S.user.role==="student"?"student":"business"}. Log out to use a different account.</p><button class="btn ghost" onclick="logout()">Log out</button></div></div>`;
+if(S.user.role!==role)return `<div class="auth"><div class="panel"><h2>This page is for ${role==="student"?"student":role==="admin"?"admin":"business"} accounts</h2><p class="meta" style="margin:6px 0 16px">You are logged in as ${S.user.role==="student"?"a student":S.user.role==="admin"?"an admin":"a business"}. Log out to use a different account.</p><button class="btn ghost" onclick="logout()">Log out</button></div></div>`;
 return null}
 function needAuth(v){S.afterAuth={view:S.view,id:S.id};go(v)}
 function capture(){const g=id=>{const e=document.getElementById(id);return e?e.value:undefined};
@@ -700,7 +715,7 @@ function signIn(acc,isNew){
 S.user=acc;S.role=acc.role;S.profile=acc.profile||null;S.myCo=acc.myCo||null;S.errs={};S.form={name:"",email:"",pw:"",terms:false,lemail:"",lpw:""};S.showPw=false;
 toast(isNew?"Account created":"Welcome back, "+acc.name.split(" ")[0]);
 const a=S.afterAuth;S.afterAuth=null;
-if(isNew&&acc.role==="student")go("verify");else if(a)go(a.view,a.id);else if(isNew)go("mine");else go(acc.role==="student"?"browse":"mine")}
+if(isNew&&acc.role==="student")go("verify");else if(a)go(a.view,a.id);else if(isNew)go("mine");else go(acc.role==="student"?"browse":acc.role==="admin"?"queue":"mine")}
 function doSignup(e){
 e.preventDefault();capture();const f=S.form,t=S.authType,er={};
 if(!f.name.trim())er.name=t==="student"?"Enter your full name.":"Enter your business name.";
@@ -759,12 +774,13 @@ const vBadge=()=>`<span class="vbadge">${VTICK(14)}Verified</span>`;
 const tgroup=(label,inner)=>`<div class="tgrp"><div class="tlabel">${label}</div><div class="tags" style="margin-top:0">${inner}</div></div>`;
 const tgroups=(f,sk)=>(f?tgroup("Field of interest",`<span class="tag paid">${esc(f)}</span>`):"")+(sk?tgroup("Top skills",sk):"");
 const vtag=o=>" "+vBadge()+(gradState(o.gm,o.gy)==="graduate"?` <span class="gbadge">Graduate</span>`:"");
-function vetStatus(){const u=S.user;if(!u||u.role!=="student")return null;const v=u.vet||(u.vet={});
-if(v.approved){const p=S.profile;return p&&gradState(p.gm,p.gy)==="expired"?"expired":"approved"}
+function vetStatusOf(acc,p){if(!acc||acc.role!=="student")return null;const v=acc.vet||(acc.vet={});
+if(v.approved)return p&&gradState(p.gm,p.gy)==="expired"?"expired":"approved";
 if(v.submitted)return "review";
 if(v.declined&&vNow()<v.declined.until)return "declined";
 if(v.changes)return "changes";
 if(!(v.verified||v.idSent))return "unverified";return "incomplete"}
+function vetStatus(){return vetStatusOf(S.user,S.profile)}
 function isLocked(){return !!S.user&&S.user.role==="student"&&vetStatus()!=="approved"}
 function lockMsg(){const s=vetStatus(),v=S.user.vet||{};
 if(s==="unverified")return "Verify your university email first. You can apply once the RightTern team has approved your profile.";
@@ -815,13 +831,11 @@ const d=S.draft,v=S.user.vet;
 if(vetStatus()==="declined"){toast("You can reapply on "+fmtFull(v.declined.until));return}
 if(!checklist(d).every(x=>x[1])){toast("Finish every step in the checklist first");return}
 saveProfile(true);v.submitted=true;v.submittedOn=vNow();delete v.changes;delete v.declined;
+addAlert("Anna and James","New profile waiting for review: "+S.user.name);
 toast("Profile submitted for review");render();window.scrollTo(0,0)}
 function teamAct(a){
-const v=S.user.vet;v.submitted=false;
-if(a==="approve"){v.approved=true;delete v.changes;delete v.declined;delete v.changeRound;toast("Approved. You can now apply for internships.")}
-if(a==="changes"&&v.changeRound)a="decline2";
-if(a==="changes"){v.changes={note:"Please add a little more detail about what you did in each role, and check that your LinkedIn link goes to your own profile.",on:vNow()};v.changeRound=1;toast("The team asked for changes")}
-if(a==="decline"||a==="decline2"){v.declined={reason:a==="decline2"?"We asked for changes and your profile still needs some work. Please use our feedback and try again.":"We could not match your profile to your LinkedIn page. Please check your details and try again.",until:vNow()+7*DAYMS};delete v.changes;delete v.changeRound;toast(a==="decline2"?"Still needs changes, so the profile is declined for a week":"The team declined this profile")}
+const r=applyDecision(S.user,a,"","Prototype shortcut");
+toast(r==="approve"?"Approved. You can now apply for internships.":r==="changes"?"The team asked for changes":r==="decline2"?"Still needs changes, so the profile is declined for a week":"The team declined this profile");
 render();window.scrollTo(0,0)}
 function skipDays(n){S.clock=n?(S.clock||0)+n:0;render()}
 const STOPW=new Set(["university","of","the","and","college","for"]);
@@ -877,6 +891,115 @@ function sendId(){
 const f=document.getElementById("vf-id"),er=document.getElementById("vf-id-err");
 if(!f.files||!f.files[0]){er.textContent="Choose a file first.";er.hidden=false;return}
 S.user.vet.idSent=true;toast("Thanks. We will check your document with your profile.");render()}
+/* ---- Admin: review queue and all data ---- */
+const ADMIN_NAV=[["queue","Review queue"],["adminStudents","Students"],["adminBiz","Businesses"],["adminJobs","Internships"],["adminApps","Applications"]];
+const STATUS_LABEL={unverified:"Email not verified",incomplete:"Profile incomplete",review:"Awaiting review",changes:"Changes requested",approved:"Approved",declined:"Declined",expired:"Expired"};
+const RV_CHECKS=["Real person, appropriate photo (and video if included)","Course, year and university make sense together","Experience section filled in with real detail","LinkedIn profile exists and matches the name","Signs of initiative: activity on LinkedIn, societies, projects, part-time work, volunteering"];
+const ACTION_LABEL={approve:"Approved",changes:"Asked for changes",decline:"Declined",decline2:"Asked for changes again, so declined for a week"};
+const homeView=()=>S.user.role==="student"?"profile":S.user.role==="admin"?"queue":"mine";
+const homeLabel=()=>S.user.role==="student"?"View and edit your profile":S.user.role==="admin"?"Open the review queue":"Open your dashboard";
+const stuAccts=()=>S.accounts.map((a,i)=>[a,i]).filter(x=>x[0].role==="student");
+const waitTxt=ms=>{const h=Math.max(0,Math.floor(ms/36e5));if(h<1)return "under an hour";if(h<24)return h+(h===1?" hour":" hours");const d=Math.floor(h/24);return d+(d===1?" day":" days")};
+const isLate=ms=>ms>=24*36e5;
+function addAlert(to,subject){(S.alerts=S.alerts||[]).push({to,subject,at:vNow()})}
+function adminGate(){if(S.user&&S.user.role==="admin")return null;
+return `<div class="auth"><div class="panel"><h2>Admin only</h2><p class="meta" style="margin:6px 0 16px">This area is for the RightTern team. Log in with an admin account to continue.</p><button class="btn" onclick="needAuth('login')">Log in</button></div></div>`}
+function adminLogin(who){
+const em=who.toLowerCase()+"@example.com";let acc=S.accounts.find(a=>a.email===em);
+if(!acc){acc={role:"admin",name:who==="Anna"?"Anna Clayton":"James Vernon",email:em,pw:"demo1234"};S.accounts.push(acc)}
+signIn(acc,false)}
+function applyDecision(acc,a,note,by){
+const v=acc.vet;v.submitted=false;
+if(a==="changes"&&v.changeRound)a="decline2";
+if(a==="approve"){v.approved=true;v.approvedOn=vNow();delete v.changes;delete v.declined;delete v.changeRound}
+else if(a==="changes"){v.changes={note:note||"Please add a little more detail about what you did in each role, and check that your LinkedIn link goes to your own profile.",on:vNow()};v.changeRound=1}
+else{v.declined={reason:note||(a==="decline2"?"We asked for changes and your profile still needs some work. Please use our feedback and try again.":"We could not match your profile to your LinkedIn page. Please check your details and try again."),until:vNow()+7*DAYMS};delete v.changes;delete v.changeRound}
+(v.log=v.log||[]).push({by,at:vNow(),action:a,note:note||""});
+const subj={approve:"Your RightTern profile is approved",changes:"A few changes are needed on your RightTern profile",decline:"Your RightTern profile was not approved this time. You can reapply on "+(v.declined?fmtFull(v.declined.until):""),decline2:"Your RightTern profile was not approved this time. You can reapply on "+(v.declined?fmtFull(v.declined.until):"")};
+addAlert(acc.name+" (student)",subj[a]);
+return a}
+function seedQueue(){
+const V={url:SAMPLE_VIDEO,name:"video-cv.webm",size:8919,dur:4},now=Date.now();
+const mk=(name,uni,uniEmail,course,year,gy,field,skills,bio,exp,li,hrs,extra)=>{const parts=name.toLowerCase().replace(/[^a-z ]/g,"").split(" ");
+S.accounts.push({role:"student",name,email:parts.join(".")+"@example.com",pw:null,demo:true,
+profile:Object.assign({name,school:uni,course,year,gm:"06",gy,field,skills,bio,exp,linkedin:li,photo:"",cvVideo:null,cvDoc:null},extra||{}),
+vet:{verified:true,uni,email:uniEmail,submitted:true,submittedOn:now-hrs*36e5}})};
+mk("Chloe Bennett","University of Liverpool","chloe.bennett@student.liverpool.ac.uk","Marketing BA","2nd year","2028","Marketing & Advertising",["Social media management","Canva","Communication","Initiative","Teamwork"],"Second-year marketing student who loves turning small brands into something people talk about.","Social media officer for the Marketing Society, growing followers from 400 to 1,900. Two years of weekend work in a busy Bold Street cafe.","https://www.linkedin.com/in/chloe-bennett-example",3,{cvVideo:V});
+mk("Liam O'Connor","Liverpool John Moores University","liam.oconnor@ljmu.ac.uk","Business Management BA","3rd year","2027","Business & Management",["Communication","Organisation","Microsoft Excel","Time management","Problem solving"],"Organised and reliable, with a keen eye for how small businesses run.","Treasurer of the Business Society, managing a budget of about 2,000 pounds. Part-time sales assistant for 18 months.","https://www.linkedin.com/in/liam-oconnor-example",20,{cvDoc:{name:"Liam_OConnor_CV.pdf",size:245000}});
+mk("Fatima Khan","University of Manchester","fatima.khan@student.manchester.ac.uk","Accounting and Finance BSc","2nd year","2028","Accounting & Finance",["Microsoft Excel","Attention to detail","Reliability","Communication","Presentation skills"],"Numbers person who also enjoys explaining them clearly.","Volunteer tax helper at a community advice centre, helping people with simple forms. Peer tutor for first-year statistics.","https://www.linkedin.com/in/fatima-khan-example",30,{cvVideo:V,cvDoc:{name:"Fatima_Khan_CV.pdf",size:310000}});
+mk("Owen Price","Liverpool Hope University","owen.price@hope.ac.uk","English and Creative Writing BA","3rd year","2027","PR & Communications",["Copywriting","Proofreading","Communication","Creativity","Punctuality"],"Writer who wants to learn how businesses tell their story.","Wrote some blog posts and helped at open days.","https://www.linkedin.com/in/owen-price-example",52,{})}
+function qRow(x){const a=x[0],i=x[1],p=a.profile||{},w=vNow()-a.vet.submittedOn;
+return `<button class="row" onclick="go('review',${i})">${avatarHtml(p.photo,a.name,"md")}<div class="mid"><h3>${esc(a.name)}${a.demo?` <span class="tag">Example</span>`:""}</h3><div class="meta">${esc(p.school||"University not added")}${p.course?", "+esc(p.course):""}${p.year?" ("+esc(p.year)+")":""}</div></div><div class="jr-r"><span class="pill ${isLate(w)?"late":"new"}">Waiting ${waitTxt(w)}</span></div></button>`}
+function alertsHtml(){const all=S.alerts||[],a=all.slice(-6).reverse();
+return `<details class="tips" style="margin-top:20px"><summary>Pretend emails sent (${all.length})</summary>${a.length?`<ul>${a.map(m=>`<li><b>To ${esc(m.to)}:</b> ${esc(m.subject)} <span class="meta">(${fmtFull(m.at)})</span></li>`).join("")}</ul>`:`<p class="meta" style="margin:10px 0 0">No emails yet. The prototype does not send real emails.</p>`}</details>`}
+function queue(){
+const g=adminGate();if(g)return g;
+const all=stuAccts(),q=all.filter(x=>vetStatusOf(x[0],x[0].profile)==="review").sort((a,b)=>a[0].vet.submittedOn-b[0].vet.submittedOn);
+const late=q.filter(x=>isLate(vNow()-x[0].vet.submittedOn)).length,appr=all.filter(x=>vetStatusOf(x[0],x[0].profile)==="approved").length;
+const stat=(n,l,c)=>`<div class="stat ${c||""}"><b>${n}</b><span>${l}</span></div>`;
+return `<h1 style="font-size:32px;margin-bottom:6px">Review queue</h1><p class="meta" style="margin-bottom:16px">Profiles waiting for a decision, oldest first. The target is one working day.</p>
+<div class="stats">${stat(q.length,"Waiting for review")}${stat(late,"Waiting over a day",late?"late":"")}${stat(appr,"Approved students")}${stat(S.cos.length,"Businesses")}</div>
+${q.length?`<div class="list">${q.map(qRow).join("")}</div>`:`<div class="list"><div class="empty">Nothing waiting. New profiles appear here as soon as a student submits.</div></div>`}
+${alertsHtml()}`}
+function rvBtns(a){
+const v=a.vet,rv=S.rv,all=rv.checks.every(Boolean),note=rv.note.trim().length>0,again=!!v.changeRound;
+return `<div class="cta-row"><button class="btn" ${all?"":"disabled"} onclick="rvDecide('approve')">Approve</button><button class="btn ghost" ${note?"":"disabled"} onclick="rvDecide('changes')">${again?"Still needs changes":"Ask for changes"}</button><button class="btn ghost" ${note?"":"disabled"} onclick="rvDecide('decline')">Decline</button></div>
+<div class="hint" style="margin-top:8px">${again?"They have already had one chance to fix this, so asking for changes again will decline the profile and lock it for a week. ":""}Approve unlocks once all five checks are ticked. Asking for changes or declining needs a note.</div>`}
+function updRv(){const el=document.getElementById("rv-btns");if(el&&S.accounts[S.id])el.innerHTML=rvBtns(S.accounts[S.id])}
+function rvCheck(i,on){S.rv.checks[i]=on;updRv()}
+function rvNote(t){S.rv.note=t;updRv()}
+function rvDecide(a){
+const acc=S.accounts[S.id],rv=S.rv,note=rv.note.trim();
+if(!acc||vetStatusOf(acc,acc.profile)!=="review")return;
+if(a==="approve"&&!rv.checks.every(Boolean))return;if(a!=="approve"&&!note)return;
+const r=applyDecision(acc,a,note,S.user.name.split(" ")[0]);
+toast(r==="approve"?acc.name+" approved":r==="changes"?"Changes requested from "+acc.name:acc.name+" declined for one week");go("queue")}
+function review(){
+const g=adminGate();if(g)return g;
+const a=S.accounts[S.id];
+if(!a||a.role!=="student")return `<div class="panel"><p>We could not find that student.</p><button class="btn" onclick="go('queue')">Back to the review queue</button></div>`;
+const p=a.profile,v=a.vet||(a.vet={}),st=vetStatusOf(a,p),inQ=st==="review";
+const link=p&&p.linkedin&&LI_RE.test(p.linkedin.trim())?`<a href="${esc(/^https?:/i.test(p.linkedin.trim())?p.linkedin.trim():"https://"+p.linkedin.trim())}" target="_blank" rel="noopener noreferrer">${esc(p.linkedin.trim())}</a>`:esc((p&&p.linkedin)||"Not added");
+const left=p?`<div class="panel"><div class="dash-head" style="margin-bottom:0"><div class="dh-l">${avatarHtml(p.photo,p.name,"lg")}<div><h1 style="font-size:28px">${esc(p.name)}${a.demo?` <span class="tag" style="vertical-align:middle">Example</span>`:""}</h1><div class="meta">${esc(p.school||"University not added")}</div><div class="meta">${esc([p.course,p.year].filter(Boolean).join(" · "))}</div></div></div><span class="pill ${inQ?"new":st==="approved"?"shortlisted":""}">${STATUS_LABEL[st]}</span></div>
+<dl class="facts"><dt>Graduation date</dt><dd>${p.gm&&p.gy?MONTHS[+p.gm-1]+" "+esc(p.gy):"Not added"}</dd>
+<dt>Sign-up email</dt><dd>${esc(a.email)}</dd>
+<dt>University email</dt><dd>${v.verified?esc(v.email)+" (verified for "+esc(v.uni)+")":v.idSent?"No uni email. They sent an ID document. Check it by hand, then delete it.":"Not verified yet"}</dd>
+<dt>LinkedIn</dt><dd>${link}</dd></dl>
+<div class="tgrp"><div class="tlabel">Experience</div><p style="margin:0;max-width:44em">${esc(p.exp||"Not added")}</p></div>
+${p.bio?`<div class="tgrp"><div class="tlabel">Short intro</div><p style="margin:0;max-width:44em">${esc(p.bio)}</p></div>`:""}
+${tgroups(p.field,(p.skills||[]).map(k=>`<span class="tag">${esc(k)}</span>`).join(""))}
+<div class="tgrp"><div class="tlabel">Video CV</div>${p.cvVideo?`<video class="pvvid" controls preload="metadata" src="${p.cvVideo.url}" aria-label="Video CV for ${esc(p.name)}"></video>`:`<p class="meta" style="margin:0">None added (optional)</p>`}</div>
+<div class="tgrp"><div class="tlabel">Document CV</div><p class="meta" style="margin:0">${p.cvDoc?esc(p.cvDoc.name):"None added"}</p></div></div>`
+:`<div class="panel"><h1 style="font-size:28px">${esc(a.name)}</h1><p class="meta">${esc(a.email)}</p><p>This student has not saved a profile yet.</p></div>`;
+const log=(v.log||[]).slice().reverse();
+const rec=`<div class="tgrp"><div class="tlabel">Decision record</div>${log.length?`<ul style="margin:0;padding-left:18px">${log.map(l=>`<li>${ACTION_LABEL[l.action]} by ${esc(l.by)} on ${fmtFull(l.at)}${l.note?`: &ldquo;${esc(l.note)}&rdquo;`:""}</li>`).join("")}</ul>`:`<p class="meta" style="margin:0">No decisions yet.</p>`}</div>`;
+const right=inQ?`<aside class="panel pv"><h2 style="font-size:20px;margin-bottom:4px">Review checklist</h2><p class="meta" style="margin:0 0 12px">Tick each one once you have checked it.</p>
+<div class="stack" style="gap:10px">${RV_CHECKS.map((t,i)=>`<label class="chk"><input type="checkbox" ${S.rv.checks[i]?"checked":""} onchange="rvCheck(${i},this.checked)"> ${esc(t)}</label>`).join("")}</div>
+<div style="margin-top:16px"><label for="rv-note">Note to the student</label><textarea class="in" id="rv-note" style="min-height:100px" oninput="rvNote(this.value)">${esc(S.rv.note)}</textarea><div class="hint">Needed to ask for changes or decline. It is emailed to the student.</div></div>
+<div id="rv-btns" style="margin-top:14px">${rvBtns(a)}</div>${rec}</aside>`
+:`<aside class="panel pv"><h2 style="font-size:20px;margin-bottom:4px">Status: ${STATUS_LABEL[st]}</h2><p class="meta" style="margin:0">${st==="review"?"":"This profile is not waiting for a decision right now."}</p>${rec}</aside>`;
+return `<button class="back" onclick="go('${inQ?"queue":"adminStudents"}')">${inQ?"Back to the review queue":"Back to students"}</button><div class="split">${left}${right}</div>`}
+const tbl=(head,rows)=>`<div class="tblwrap"><table class="tbl"><thead><tr>${head.map(h=>`<th scope="col">${h}</th>`).join("")}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="${head.length}" class="meta">Nothing here yet.</td></tr>`}</tbody></table></div>`;
+const adminHead=(t,sub)=>`<h1 style="font-size:32px;margin-bottom:6px">${t}</h1><p class="meta" style="margin-bottom:16px">${sub}</p>`;
+function adminStudents(){
+const g=adminGate();if(g)return g;
+const rows=stuAccts().map(x=>{const a=x[0],i=x[1],p=a.profile||{},st=vetStatusOf(a,a.profile),l=a.vet&&a.vet.log&&a.vet.log.length?a.vet.log[a.vet.log.length-1]:null;
+return [`<button class="link" onclick="go('review',${i})">${esc(a.name)}</button>${a.demo?` <span class="tag">Example</span>`:""}`,esc(p.school||"Not added"),esc([p.course,p.year].filter(Boolean).join(", ")||"Not added"),`<span class="pill ${st==="review"?"new":st==="approved"?"shortlisted":""}">${STATUS_LABEL[st]}</span>`,l?fmtFull(l.at)+" by "+esc(l.by):"No decision yet"]});
+const ex=S.pool.map(c=>[esc(c.name)+` <span class="tag">Example</span>`,esc(c.school),esc(c.field||""),`<span class="pill shortlisted">Approved</span>`,"Sample data"]);
+return adminHead("Students","Everyone who has signed up, with their vetting status. Click a name to see the full profile and decision record.")+tbl(["Name","University","Course and year","Status","Last decision"],rows.concat(ex))}
+function adminBiz(){
+const g=adminGate();if(g)return g;
+const rows=S.cos.map(c=>[`<button class="link" onclick="go('company',${c.id})">${esc(c.name)}</button>`,esc(c.ind||""),esc(c.loc||""),S.jobs.filter(j=>j.co===c.id&&j.open!==false).length,S.apps.filter(a=>{const j=S.jobs.find(x=>x.id===a.job);return j&&j.co===c.id}).length]);
+return adminHead("Businesses","Every business on the platform.")+tbl(["Business","Industry","Location","Open internships","Applications"],rows)}
+function adminJobs(){
+const g=adminGate();if(g)return g;
+const rows=S.jobs.map(j=>{const c=co(j.co);return [`<button class="link" onclick="go('job',${j.id})">${esc(j.title)}</button>`,esc(c?c.name:""),esc(jobLoc(j)),esc(fmtPay(j)),j.open===false?"Closed":"Open",S.apps.filter(a=>a.job===j.id).length]});
+return adminHead("Internships","Every internship that has been posted. All are paid.")+tbl(["Internship","Business","Location","Salary","Status","Applications"],rows)}
+function adminApps(){
+const g=adminGate();if(g)return g;
+const rows=S.apps.map(a=>{const j=S.jobs.find(x=>x.id===a.job),c=j?co(j.co):null;return [esc(a.student.name)+(a.demo?` <span class="tag">Example</span>`:""),esc(j?j.title:""),esc(c?c.name:""),statusPill(a.status),esc(a.date||"")]});
+return adminHead("Applications","Every application students have sent.")+tbl(["Student","Internship","Business","Status","Date"],rows)}
+
 function login(){
 const f=S.form,er=S.errs;
 return `<div class="auth"><h1>Welcome back</h1><p class="meta" style="margin-bottom:16px">Log in to apply, manage your profile or post internships.</p><div class="panel">
@@ -886,13 +1009,13 @@ return `<div class="auth"><h1>Welcome back</h1><p class="meta" style="margin-bot
 ${er.form?`<div class="err" id="e-form" role="alert" style="margin:0">${er.form}</div>`:""}
 <button class="btn" type="submit" style="width:100%">Log in</button>
 <button type="button" class="link" style="justify-self:start" onclick="toast('Password reset is not part of the prototype yet.')">Forgot your password?</button></form>
-<div class="demo"><p class="meta">Prototype shortcuts</p><div class="cta-row"><button class="btn ghost sm" onclick="demoLogin('student')">Try as a student</button><button class="btn ghost sm" onclick="demoLogin('business')">Try as a business</button></div></div></div>
+<div class="demo"><p class="meta">Prototype shortcuts</p><div class="cta-row"><button class="btn ghost sm" onclick="demoLogin('student')">Try as a student</button><button class="btn ghost sm" onclick="demoLogin('business')">Try as a business</button><button class="btn ghost sm" onclick="adminLogin('Anna')">Admin: Anna</button><button class="btn ghost sm" onclick="adminLogin('James')">Admin: James</button></div></div></div>
 <p class="meta" style="margin-top:14px;text-align:center">New to RightTern? <button class="link" onclick="go('signup')">Create an account</button></p></div>`}
 const SAMPLE_VIDEO="data:video/webm;base64,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";
 const INDUSTRIES=["Accounting & Finance","Architecture & Construction","Charity & Non-profit","Creative & Design","Education","Engineering","Health & Social Care","Hospitality & Tourism","Legal","Marketing & Media","Retail","Science & Research","Technology","Other"];
 function coBadge(c,sz){const px={md:44,lg:56,xl:96}[sz]||44;
 return c.logo?`<img class="logoimg ${sz}" src="${c.logo}" alt="">`:`<div class="badge" style="width:${px}px;height:${px}px;font-size:${Math.round(px*.43)}px;flex:none">${esc((c.name||"?")[0].toUpperCase())}</div>`}
-function isOn(k){return S.view===k||(k==="mine"&&["applicants","applicant","editco","suggested","candidate","schedule"].includes(S.view))}
+function isOn(k){return S.view===k||(k==="queue"&&S.view==="review")||(k==="mine"&&["applicants","applicant","editco","suggested","candidate","schedule"].includes(S.view))}
 function appsFor(id){return S.apps.filter(a=>a.job===id&&a.status!=="withdrawn")}
 function statusPill(s){return `<span class="pill ${s}">${{new:"New",shortlisted:"Shortlisted",declined:"Declined",withdrawn:"Withdrawn"}[s]}</span>`}
 function dashboard(){
@@ -1015,7 +1138,7 @@ const have=new Set((S.user&&S.user.role==="student"&&S.profile?S.profile.skills:
 const any=j.skills.some(x=>have.has(x.toLowerCase()));
 return `<div style="margin-top:18px"><div class="meta" style="margin-bottom:6px">Skills they are looking for</div><div class="tags" style="margin-top:0">${j.skills.map(x=>`<span class="tag ${have.has(x.toLowerCase())?"good":""}">${esc(x)}</span>`).join("")}</div>${any?`<div class="rsn">Skills you already have are highlighted.</div>`:""}</div>`}
 function candidates(){
-const reals=[];S.accounts.forEach((a,i)=>{if(a.role==="student"&&a.profile){const p=a.profile;reals.push({id:"a"+i,name:p.name,school:p.school,field:p.field,skills:p.skills||[],bio:p.bio,photo:p.photo,cvVideo:p.cvVideo,cvDoc:p.cvDoc,email:a.email})}});
+const reals=[];S.accounts.forEach((a,i)=>{if(a.role==="student"&&a.profile&&vetStatusOf(a,a.profile)==="approved"){const p=a.profile;reals.push({id:"a"+i,name:p.name,school:p.school,field:p.field,skills:p.skills||[],bio:p.bio,photo:p.photo,cvVideo:p.cvVideo,cvDoc:p.cvDoc,email:a.email})}});
 return [...S.pool,...reals]}
 const hasApplied=(email,job)=>S.apps.some(a=>a.job===job&&a.student.email===email);
 const invitedTo=(job,email)=>S.invites.some(i=>i.job===job&&i.email===email);
@@ -1340,8 +1463,8 @@ ${sect("Active",act,`No active applications. <div style="margin-top:12px"><butto
 function seedMine(){
 const A={name:"Alex Morgan",school:"University of Manchester",field:"Art & Design",skills:["Figma","Branding","Creativity","Teamwork"],bio:"Second-year design student looking for hands-on studio experience.",photo:"",cvVideo:null,cvDoc:null,email:"alex@example.com"};
 [[3,"shortlisted","4 Nov"],[5,"new","8 Nov"],[4,"declined","29 Oct"]].forEach(([job,status,date])=>S.apps.push({id:S.nextApp++,job,status,date,student:Object.assign({},A)}))}
-function render(){bar();const V={home,browse,job,company,profile,mine,post,login,signup,verify,applicants,applicant,editco,suggested,candidate,matches,interviews,schedule,about,privacy,applications};clearInterval(S.carT);cancelAnimationFrame(S.carRaf);const appEl=document.getElementById("app");appEl.className=(S.view==="home"||S.view==="about")?"wide":S.view==="profile"?"pwide":"";appEl.innerHTML=V[S.view]()+footer();if(S.view==="home"||S.view==="about")initHome();if(S.view==="profile"&&document.getElementById("pf-uni"))initProfile();if(S.view==="editco"&&document.getElementById("co-name"))initEditCo();if(S.view==="post"&&document.getElementById("ps-skill"))initPost();if(S.view==="verify"&&document.getElementById("vf-uni"))initVerify()}
-seedApps();seedMatch();seedIv();seedMine();render();
+function render(){bar();const V={home,browse,job,company,profile,mine,post,login,signup,verify,queue,review,adminStudents,adminBiz,adminJobs,adminApps,applicants,applicant,editco,suggested,candidate,matches,interviews,schedule,about,privacy,applications};clearInterval(S.carT);cancelAnimationFrame(S.carRaf);const appEl=document.getElementById("app");appEl.className=(S.view==="home"||S.view==="about")?"wide":S.view==="profile"?"pwide":"";appEl.innerHTML=V[S.view]()+footer();if(S.view==="home"||S.view==="about")initHome();if(S.view==="profile"&&document.getElementById("pf-uni"))initProfile();if(S.view==="editco"&&document.getElementById("co-name"))initEditCo();if(S.view==="post"&&document.getElementById("ps-skill"))initPost();if(S.view==="verify"&&document.getElementById("vf-uni"))initVerify()}
+seedApps();seedMatch();seedIv();seedMine();seedQueue();render();
 </script>
 
 </body>
