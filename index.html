@@ -102,6 +102,21 @@ textarea.in{min-height:96px;resize:vertical}
 .chk input{margin-top:4px}
 .demo{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 .demo p{margin:0 0 8px}
+.prog{height:10px;border-radius:99px;background:var(--tint);border:1px solid var(--line);overflow:hidden}
+.prog>span{display:block;height:100%;background:var(--sun);border-radius:99px;transition:width .2s}
+.steps{display:flex;gap:6px 16px;flex-wrap:wrap;margin:0 0 14px;padding:0;list-style:none;font-size:13px;color:var(--mute)}
+.steps li.on{color:var(--ink);font-weight:600}
+.ck{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:2px 16px;grid-template-columns:repeat(3,1fr);font-size:15px}
+.ck button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:7px 8px;color:var(--ink);font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
+.ck button:hover,.ck button:focus-visible{background:var(--tint)}
+.ck .dot{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--mute);box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;color:var(--sun-ink)}
+.ck .done .dot{background:var(--sun);border-color:var(--sun)}
+main.pwide{max-width:1280px}
+@media(min-width:1100px){main.pwide .split{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+.cvgrid{display:grid;gap:12px;grid-template-columns:1fr 1fr;align-items:start}
+@media(max-width:860px){.ck{grid-template-columns:1fr 1fr}.cvgrid{grid-template-columns:1fr}}
+.note{border-left:4px solid var(--sun);background:var(--tint)}
+@media(max-width:560px){.ck{grid-template-columns:1fr}}
 @media(max-width:560px){.types{grid-template-columns:1fr}}
 .cwrap{position:relative}
 .opts{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;z-index:15;background:var(--surf);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(10,25,50,.16);max-height:280px;overflow:auto;top:100%}
@@ -317,7 +332,7 @@ const FIELDS=["Design","Engineering","Marketing","Finance","Other"];
 const co=id=>S.cos.find(c=>c.id==id);
 const v=id=>document.getElementById(id).value.trim();
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2400)}
-function go(view,id){S.view=view;S.id=id||null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
+function go(view,id){S.view=view;S.id=id||null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="verify")S.ver=null;if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
 function setRole(r){S.role=r;go(S.view==="home"?"home":(r==="student"?"browse":"mine"))}
 function start(r){if(!S.user)S.role=r;go(r==="student"?"browse":"mine")}
 function curTheme(){return document.documentElement.getAttribute("data-theme")||"light"}
@@ -408,16 +423,17 @@ norm();if(!S.carPause&&!reduce){pos+=SPEED*dt/1000;tr.scrollLeft=pos;last=pos}}
 S.carRaf=requestAnimationFrame(tick)};
 cancelAnimationFrame(S.carRaf);S.carRaf=requestAnimationFrame(tick)}
 function job(){
-const j=S.jobs.find(x=>x.id==S.id),c=co(j.co),done=!!activeApp(j.id),cool=coolUntil(j.id);
+const j=S.jobs.find(x=>x.id==S.id),c=co(j.co),done=!!activeApp(j.id),cool=coolUntil(j.id),lock=isLocked();
 return `<button class="back" onclick="go('browse')">Back to internships</button><div class="panel"><h1>${esc(j.title)}</h1>
 <div class="meta"><button class="link" onclick="go('company',${c.id})">${esc(c.name)}</button> in ${esc(jobLoc(j))}</div>${tags(j)}
 <h2 style="font-size:20px;margin:24px 0 8px">About this internship</h2><p style="margin:0;max-width:38em">${esc(j.desc)}</p>
 <div class="payb"><div class="meta" style="margin:0 0 4px;font-weight:600;color:var(--ink)">Salary</div><div class="payfig">${esc(fmtPay(j))}</div>${j.pay&&j.pay.note?`<div class="meta" style="margin-top:2px">${esc(j.pay.note)}</div>`:""}<div class="meta" style="margin-top:6px">This is a paid internship.</div></div>
 ${skillsWanted(j)}<div style="height:18px"></div>
-<button class="btn" ${done||cool?"disabled":""} onclick="apply(${j.id})">${done?"Applied":cool?"You can apply again on "+fmtD(cool):"Apply with my profile"}</button>${done?` <button class="link" style="margin-left:10px" onclick="go('applications')">View my applications</button>`:""}${cool&&!done?`<div class="hint" style="margin-top:8px">You withdrew this application recently. There is a short wait before you can apply again.</div>`:""}</div>`}
+<button class="btn" ${done||cool||lock?"disabled":""} onclick="apply(${j.id})">${done?"Applied":cool?"You can apply again on "+fmtD(cool):"Apply with my profile"}</button>${done?` <button class="link" style="margin-left:10px" onclick="go('applications')">View my applications</button>`:""}${cool&&!done?`<div class="hint" style="margin-top:8px">You withdrew this application recently. There is a short wait before you can apply again.</div>`:""}${lock&&!done?`<div class="hint" style="margin-top:8px">${esc(lockMsg())} <button class="link" onclick="go('${vetStatus()==="unverified"?"verify":"profile"}')">${vetStatus()==="unverified"?"Verify my university email":"Go to my profile"}</button></div>`:""}</div>`}
 function apply(id){
 if(!S.user){S.afterAuth={view:"job",id:id};toast("Log in to apply");go("login");return}
 if(S.user.role!=="student"){toast("Switch to a student account to apply.");return}
+if(vetStatus()!=="approved"){toast(lockMsg());go(vetStatus()==="unverified"?"verify":"profile");return}
 if(!S.profile){toast("Create your profile first, then apply.");go("profile");return}
 const cu=coolUntil(id);if(cu){toast("You can apply again on "+fmtD(cu));return}
 if(activeApp(id))return;
@@ -479,14 +495,14 @@ else if(e.key==="Backspace"&&!input.value&&o.back){o.back()}});
 list.addEventListener("mousedown",e=>{e.preventDefault();const li=e.target.closest("li");if(li)o.pick(cur[+li.dataset.i].value)});
 return{refresh,close}}
 function avatarHtml(photo,name,sz){return photo?`<img class="av av-${sz}" src="${photo}" alt="">`:`<span class="badge av-${sz}" aria-hidden="true">${esc((name||"?")[0].toUpperCase())}</span>`}
-function initDraft(){const p=S.profile;S.draft=p?{name:p.name,school:p.school||"",field:p.field||"",skills:[...(p.skills||[])],bio:p.bio||"",photo:p.photo||"",cvVideo:p.cvVideo||null,cvDoc:p.cvDoc||null}:{name:S.user?S.user.name:"",school:"",field:"",skills:[],bio:"",photo:"",cvVideo:null,cvDoc:null}}
+function initDraft(){const p=S.profile;S.draft=p?{name:p.name,school:p.school||"",field:p.field||"",skills:[...(p.skills||[])],bio:p.bio||"",photo:p.photo||"",cvVideo:p.cvVideo||null,cvDoc:p.cvDoc||null,course:p.course||"",year:p.year||"",gm:p.gm||"",gy:p.gy||"",exp:p.exp||"",linkedin:p.linkedin||""}:{name:S.user?S.user.name:"",school:(S.user&&S.user.vet&&S.user.vet.uni)||"",field:"",skills:[],bio:"",photo:"",cvVideo:null,cvDoc:null,course:"",year:"",gm:"",gy:"",exp:"",linkedin:""}}
 function pvHtml(){
 const d=S.draft;
 const blank=!d.name&&!d.school&&!d.field&&!d.skills.length&&!d.bio&&!d.photo&&!d.cvVideo&&!d.cvDoc;
 const top=`<div class="meta" style="margin:0 0 14px">How businesses will see you</div>`;
 if(blank)return top+`<div class="empty" style="padding:24px 0">Start filling in the form and your profile appears here.</div>`;
 return top+`<div style="margin-bottom:12px">${avatarHtml(d.photo,d.name,"xl")}</div>
-<h2>${esc(d.name||"Your name")}</h2><div class="meta">${esc(d.school||"Your university")}</div>
+<h2>${esc(d.name||"Your name")}</h2><div class="meta">${esc(d.school||"Your university")}</div>${d.course||d.year?`<div class="meta">${esc([d.course,d.year].filter(Boolean).join(" \u00b7 "))}</div>`:""}
 <div class="tags">${d.field?`<span class="tag paid">${esc(d.field)}</span>`:""}${d.skills.map(s=>`<span class="tag">${esc(s)}</span>`).join("")}</div>
 ${d.bio?`<p style="margin:14px 0 0">${esc(d.bio)}</p>`:""}`}
 const fmtSize=b=>b<1048576?Math.max(1,Math.round(b/1024))+" KB":(b/1048576).toFixed(1)+" MB";
@@ -499,15 +515,15 @@ if(d.cvVideo)out+=`<div class="pvlabel"><span class="tag paid">Video CV</span>${
 if(d.cvDoc)out+=`<div class="pvlabel"><span class="tag">Document CV</span>${esc(d.cvDoc.name)}</div>`;
 return out?`<div class="pvmedia">${out}</div>`:""}
 function updMedia(){const el=document.getElementById("pv-media");if(el)el.innerHTML=pvMedia()}
-function updPreview(){const el=document.getElementById("pv-main");if(el)el.innerHTML=pvHtml()}
+function updPreview(){const el=document.getElementById("pv-main");if(el)el.innerHTML=pvHtml();updProg()}
 function profile(){
 const g=gate("student","Log in to build your profile.");if(g)return g;
 if(!S.draft)initDraft();
 const d=S.draft;
 const opts=Object.entries(INTERESTS).map(([grp,list])=>`<optgroup label="${esc(grp)}">${list.map(o=>`<option ${d.field===o?"selected":""}>${esc(o)}</option>`).join("")}</optgroup>`).join("");
-return `<h1 style="font-size:32px;margin-bottom:16px">Your profile</h1><div class="split"><div class="panel"><div class="stack">
-<div><label>Profile photo</label><div class="photo"><div id="pf-avatar">${avatarHtml(d.photo,d.name,"lg")}</div><div><div class="cta-row"><button type="button" class="btn ghost sm" id="pf-up">${d.photo?"Change photo":"Upload photo"}</button><button type="button" class="btn ghost sm" id="pf-adj" hidden>Adjust crop</button><button type="button" class="btn ghost sm" id="pf-rm" ${d.photo?"":"hidden"}>Remove</button></div><input type="file" id="pf-photo" accept="image/*" hidden><div class="hint">JPG or PNG. You can move and zoom it to crop.</div><div class="err" id="pf-msg" role="alert" hidden></div></div></div></div>
-<details class="tips"><summary>What makes a good profile photo?</summary><ul>
+return `<h1 style="font-size:32px;margin-bottom:16px">Your profile</h1><div id="pf-prog">${progHtml()}</div><div class="split"><div class="panel"><div class="grid">
+<div class="full"><label>Profile photo</label><div class="photo"><div id="pf-avatar">${avatarHtml(d.photo,d.name,"lg")}</div><div><div class="cta-row"><button type="button" class="btn ghost sm" id="pf-up">${d.photo?"Change photo":"Upload photo"}</button><button type="button" class="btn ghost sm" id="pf-adj" hidden>Adjust crop</button><button type="button" class="btn ghost sm" id="pf-rm" ${d.photo?"":"hidden"}>Remove</button></div><input type="file" id="pf-photo" accept="image/*" hidden><div class="hint">JPG or PNG. You can move and zoom it to crop.</div><div class="err" id="pf-msg" role="alert" hidden></div></div></div></div>
+<details class="tips full"><summary>What makes a good profile photo?</summary><ul>
 <li>Head and shoulders, with your face clearly visible and looking at the camera.</li>
 <li>Natural light or a bright room. Face the light so your face isn&#8217;t in shadow.</li>
 <li>A plain, uncluttered background.</li>
@@ -516,10 +532,15 @@ return `<h1 style="font-size:32px;margin-bottom:16px">Your profile</h1><div clas
 <li>A recent photo that looks like you. A relaxed, friendly smile works well.</li></ul></details>
 <div><label for="pf-name">Full name</label><input class="in" id="pf-name" autocomplete="name" value="${esc(d.name)}"></div>
 <div><label for="pf-uni">University</label><div class="cwrap"><input class="in" id="pf-uni" role="combobox" aria-expanded="false" aria-controls="uni-list" aria-autocomplete="list" autocomplete="off" placeholder="Start typing, like Manchester or UCL" value="${esc(d.school)}"><ul class="opts" id="uni-list" role="listbox" hidden></ul></div><div class="hint">Not listed? Type the full name and carry on.</div></div>
+<div><label for="pf-course">Course</label><input class="in" id="pf-course" autocomplete="off" placeholder="e.g. Marketing BA" value="${esc(d.course)}"></div>
+<div><label for="pf-year">Year of study</label><select class="in" id="pf-year"><option value="">Choose your year</option>${YEARS.map(y=>`<option ${d.year===y?"selected":""}>${esc(y)}</option>`).join("")}</select></div>
+<div><label for="pf-gm">Graduation date</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><select class="in" id="pf-gm" aria-label="Graduation month"><option value="">Month</option>${MONTHS.map((m,i)=>`<option value="${String(i+1).padStart(2,"0")}" ${d.gm===String(i+1).padStart(2,"0")?"selected":""}>${m}</option>`).join("")}</select><select class="in" id="pf-gy" aria-label="Graduation year"><option value="">Year</option>${gradYears().map(y=>`<option ${d.gy===String(y)?"selected":""}>${y}</option>`).join("")}</select></div><div class="hint">When you expect to graduate, or when you did. Graduates can stay for two years and show as &ldquo;Graduate&rdquo;.</div></div>
 <div><label for="pf-field">Field of interest</label><select class="in" id="pf-field"><option value="">Choose a field</option>${opts}</select></div>
-<div><label for="pf-skill">Your top 5 skills <span class="count" id="pf-count" aria-live="polite"></span></label><div class="chips cwrap" id="pf-chips"><span id="pf-chiplist" style="display:contents"></span><input id="pf-skill" role="combobox" aria-expanded="false" aria-controls="sk-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill, like Communication"><ul class="opts" id="sk-list" role="listbox" hidden></ul></div><div class="hint">Choose the five that best show what you can do. Pick from the list or press Enter to add your own. Soft skills count too, like punctuality.</div></div>
+<div class="full"><label for="pf-skill">Your top 5 skills <span class="count" id="pf-count" aria-live="polite"></span></label><div class="chips cwrap" id="pf-chips"><span id="pf-chiplist" style="display:contents"></span><input id="pf-skill" role="combobox" aria-expanded="false" aria-controls="sk-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill, like Communication"><ul class="opts" id="sk-list" role="listbox" hidden></ul></div><div class="hint">Choose the five that best show what you can do. Pick from the list or press Enter to add your own. Soft skills count too, like punctuality.</div></div>
+<div><label for="pf-exp">Experience</label><textarea class="in" id="pf-exp" style="min-height:120px" placeholder="Part-time jobs, volunteering, societies, projects">${esc(d.exp)}</textarea><div class="hint">A few sentences about what you have done and what you did in each role. Businesses read this first.</div></div>
 <div><label for="pf-bio">A short intro</label><textarea class="in" id="pf-bio" style="min-height:120px">${esc(d.bio)}</textarea></div>
-<div><label>Your CV</label><div class="stack" style="gap:12px">
+<div class="full"><label for="pf-li">LinkedIn link</label><input class="in" id="pf-li" type="url" autocomplete="off" placeholder="linkedin.com/in/your-name" value="${esc(d.linkedin)}"><div class="hint">We check that your LinkedIn profile exists and matches your name.</div></div>
+<div class="full"><label>Your CV</label><div class="cvgrid">
 <div class="cvbox rec"><h3>Video CV <span class="tag paid">Recommended</span></h3>
 <p>A short video lets businesses see who you are, not just what you have done. It is the quickest way to stand out.</p>
 <div class="cta-row"><button type="button" class="btn ghost sm" id="cv-v-up">${d.cvVideo?"Replace video":"Upload video"}</button><button type="button" class="btn ghost sm" id="cv-v-rm" ${d.cvVideo?"":"hidden"}>Remove</button></div>
@@ -548,7 +569,7 @@ return `<h1 style="font-size:32px;margin-bottom:16px">Your profile</h1><div clas
 <div class="file ${d.cvDoc?"":"none"}" id="cv-d-status">${cvDocStatus(d)}</div>
 <div class="hint">PDF, DOC or DOCX, up to 5 MB.</div>
 <div class="err" id="cv-d-msg" role="alert" hidden></div></div></div></div>
-<button class="btn" onclick="saveProfile()" style="justify-self:start">Save profile</button></div></div>
+<button class="btn ghost full" onclick="saveProfile()" style="justify-self:start">Save profile</button><div id="pf-sub" class="full">${subHtml()}</div></div></div>
 <aside class="panel pv" id="pv"><div id="pv-main" aria-live="polite">${pvHtml()}</div><div id="pv-media">${pvMedia()}</div></aside></div>`}
 function chipsHtml(){return S.draft.skills.map((s,i)=>`<span class="chip2">${esc(s)}<button type="button" aria-label="Remove ${esc(s)}" data-rm="${i}">&times;</button></span>`).join("")}
 function initProfile(){
@@ -557,6 +578,7 @@ const name=$("pf-name"),uni=$("pf-uni"),field=$("pf-field"),bio=$("pf-bio"),sk=$
 name.addEventListener("input",()=>{d.name=name.value;updPreview()});
 bio.addEventListener("input",()=>{d.bio=bio.value;updPreview()});
 field.addEventListener("change",()=>{d.field=field.value;updPreview()});
+for(const [id,k] of [["pf-course","course"],["pf-year","year"],["pf-gm","gm"],["pf-gy","gy"],["pf-exp","exp"],["pf-li","linkedin"]]){const el=$(id);const fn=()=>{d[k]=el.value;updPreview()};el.addEventListener("input",fn);el.addEventListener("change",fn)}
 const drawChips=()=>{cl.innerHTML=chipsHtml();const n=d.skills.length,full=n>=MAX_SKILLS;$("pf-count").textContent=n+" of "+MAX_SKILLS;sk.placeholder=full?"Remove a skill to add another":"Type a skill, like Communication"};
 drawChips();
 const uc=attachCombo({input:uni,list:$("uni-list"),items:suggestUnis,pick:v=>{uni.value=v;d.school=v;uc.close();updPreview()}});
@@ -616,10 +638,10 @@ if(!/\.(pdf|docx?)$/i.test(f.name)){note(dmsg,"Choose a PDF, DOC or DOCX file.")
 if(f.size>5*1024*1024){note(dmsg,"That file is over 5 MB. Compress it or export a smaller version.");df.value="";return}
 d.cvDoc={name:f.name,size:f.size};redrawCv();df.value=""})
 }
-function saveProfile(){
+function saveProfile(quiet){
 const d=S.draft;if(!d.name.trim()){toast("Add your name first");document.getElementById("pf-name").focus();return}
-S.profile={name:d.name.trim(),school:d.school.trim(),field:d.field,skills:[...d.skills],bio:d.bio.trim(),photo:d.photo,cvVideo:d.cvVideo,cvDoc:d.cvDoc};
-bar();toast("Profile saved")}
+S.profile={name:d.name.trim(),school:d.school.trim(),course:d.course.trim(),year:d.year,gm:d.gm,gy:d.gy,exp:d.exp.trim(),linkedin:d.linkedin.trim(),field:d.field,skills:[...d.skills],bio:d.bio.trim(),photo:d.photo,cvVideo:d.cvVideo,cvDoc:d.cvDoc};
+bar();if(!quiet)toast("Profile saved")}
 function mine(){
 const g=gate("business","Log in to set up your business profile.");if(g)return g;
 if(S.myCo)return dashboard();
@@ -672,7 +694,7 @@ function signIn(acc,isNew){
 S.user=acc;S.role=acc.role;S.profile=acc.profile||null;S.myCo=acc.myCo||null;S.errs={};S.form={name:"",email:"",pw:"",terms:false,lemail:"",lpw:""};S.showPw=false;
 toast(isNew?"Account created":"Welcome back, "+acc.name.split(" ")[0]);
 const a=S.afterAuth;S.afterAuth=null;
-if(a)go(a.view,a.id);else if(isNew)go(acc.role==="student"?"profile":"mine");else go(acc.role==="student"?"browse":"mine")}
+if(isNew&&acc.role==="student")go("verify");else if(a)go(a.view,a.id);else if(isNew)go("mine");else go(acc.role==="student"?"browse":"mine")}
 function doSignup(e){
 e.preventDefault();capture();const f=S.form,t=S.authType,er={};
 if(!f.name.trim())er.name=t==="student"?"Enter your full name.":"Enter your business name.";
@@ -682,7 +704,7 @@ if(f.pw.length<8)er.pw="Use at least 8 characters.";
 if(!f.terms)er.terms="Agree to the terms and privacy policy to continue.";
 const k=Object.keys(er)[0];
 if(k){S.errs=er;render();const m={name:"au-name",email:"au-email",pw:"au-pw",terms:"au-terms"};const el=document.getElementById(m[k]);if(el)el.focus();return false}
-const acc={role:t,name:f.name.trim(),email:f.email.trim().toLowerCase(),pw:f.pw};
+const acc={role:t,name:f.name.trim(),email:f.email.trim().toLowerCase(),pw:f.pw};if(t==="student")acc.vet={};
 S.accounts.push(acc);signIn(acc,true);return false}
 function doLogin(e){
 e.preventDefault();capture();const f=S.form,er={};
@@ -694,7 +716,7 @@ signIn(acc,false);return false}
 function demoLogin(role){
 const em=role==="student"?"alex@example.com":"harbour@example.com";
 let acc=S.accounts.find(a=>a.email===em);
-if(!acc){acc=role==="student"?{role,name:"Alex Morgan",email:em,pw:"demo1234",profile:{name:"Alex Morgan",school:"University of Manchester",field:"Art & Design",skills:["Figma","Branding","Creativity","Teamwork"],bio:"Second-year design student looking for hands-on studio experience."}}:{role,name:"Harbour Studio",email:em,pw:"demo1234",myCo:co(1)};S.accounts.push(acc)}
+if(!acc){acc=role==="student"?{role,name:"Alex Morgan",email:em,pw:"demo1234",profile:{name:"Alex Morgan",school:"University of Manchester",field:"Art & Design",skills:["Figma","Branding","Creativity","Teamwork"],bio:"Second-year design student looking for hands-on studio experience.",course:"Graphic Design BA",year:"2nd year",gm:"06",gy:"2027",exp:"Designed posters and social posts for the university design society. Part-time barista for two years, so used to busy shifts and talking to customers.",linkedin:"https://www.linkedin.com/in/alex-morgan-design"},vet:{verified:true,approved:true,uni:"University of Manchester",email:"alex.morgan@student.manchester.ac.uk"}}:{role,name:"Harbour Studio",email:em,pw:"demo1234",myCo:co(1)};S.accounts.push(acc)}
 signIn(acc,false)}
 function logout(){if(S.user){S.user.profile=S.profile;S.user.myCo=S.myCo}S.user=null;S.profile=null;S.myCo=null;toast("Logged out");go("home")}
 function signup(){
@@ -711,8 +733,102 @@ return `<div class="auth"><h1>Create your account</h1><p class="meta" style="mar
 <div><label for="au-pw">Password</label><div class="pw"><input class="in" id="au-pw" type="${S.showPw?"text":"password"}" autocomplete="new-password" value="${esc(f.pw)}"${inv("pw")}><button type="button" class="link" onclick="togglePw()">${S.showPw?"Hide":"Show"}</button></div><div class="hint">At least 8 characters</div>${fe("pw")}</div>
 <div><label class="chk" for="au-terms"><input type="checkbox" id="au-terms" ${f.terms?"checked":""}> I agree to the terms and privacy policy</label>${fe("terms")}</div>
 <button class="btn" type="submit" style="width:100%">Create account</button></form>
-${t==="student"?`<p class="meta" style="margin:14px 0 0">Every student on RightTern is vetted before being matched.</p>`:""}</div>
+${t==="student"?`<p class="meta" style="margin:14px 0 0">Every student on RightTern is vetted before being matched. Next, you will verify your university email.</p>`:""}</div>
 <p class="meta" style="margin-top:14px;text-align:center">Already have an account? <button class="link" onclick="go('login')">Log in</button></p></div>`}
+/* ---- Student vetting: status, checklist, verify email ---- */
+const YEARS=["1st year","2nd year","3rd year","4th year or later","Placement year","Master’s","PhD","Recent graduate"];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const gradYears=()=>{const y=new Date().getFullYear(),out=[];for(let i=y-2;i<=y+6;i++)out.push(i);return out};
+const LI_RE=/^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/in\/[^\s\/]+/i;
+const DEMO_CODE="123456";
+const CHECK_SVG=`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+function vetStatus(){const u=S.user;if(!u||u.role!=="student")return null;const v=u.vet||(u.vet={});
+if(v.approved)return "approved";if(v.submitted)return "review";if(!(v.verified||v.idSent))return "unverified";return "incomplete"}
+function isLocked(){return !!S.user&&S.user.role==="student"&&vetStatus()!=="approved"}
+function lockMsg(){const s=vetStatus();
+if(s==="unverified")return "Verify your university email first. You can apply once the RightTern team has approved your profile.";
+if(s==="review")return "Your profile is being reviewed. You can apply as soon as it is approved.";
+return "Finish your profile and submit it for review. You can apply once the RightTern team has approved it."}
+function checklist(d){const v=(S.user&&S.user.vet)||{};return [
+["Verify your university email",!!(v.verified||v.idSent),"go('verify')"],
+["Profile photo",!!d.photo,"focusField('pf-up')"],
+["University",!!d.school.trim(),"focusField('pf-uni')"],
+["Course",!!d.course.trim(),"focusField('pf-course')"],
+["Year of study",!!d.year,"focusField('pf-year')"],
+["Graduation date",!!(d.gm&&d.gy),"focusField('pf-gm')"],
+["Top 5 skills",d.skills.length>=MAX_SKILLS,"focusField('pf-skill')"],
+["Experience",d.exp.trim().length>=20,"focusField('pf-exp')"],
+["LinkedIn link",LI_RE.test(d.linkedin.trim()),"focusField('pf-li')"]]}
+function focusField(id){const e=document.getElementById(id);if(e){e.scrollIntoView({block:"center"});e.focus()}}
+function progHtml(){
+const s=vetStatus();if(!s)return "";
+if(s==="approved")return `<div class="panel note" style="margin-bottom:16px"><b>You are approved.</b><div class="meta" style="margin:4px 0 0">You can apply for internships and be matched with businesses.</div></div>`;
+if(s==="review")return `<div class="panel note" style="margin-bottom:16px"><b>Awaiting review</b><div class="meta" style="margin:4px 0 0">We will review your profile within one working day and email you. You can keep improving it while you wait. You can apply once you are approved.</div><div class="demo"><p class="meta">Prototype shortcut</p><button class="btn ghost sm" onclick="approveMe()">Pretend the team approved me</button></div></div>`;
+const ck=checklist(S.draft),n=ck.filter(x=>x[1]).length,pct=Math.round(n/ck.length*100);
+return `<div class="panel" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;flex-wrap:wrap"><b>Your profile is ${pct}% complete</b><span class="meta" style="margin:0">${n} of ${ck.length} steps done</span></div><div class="prog" role="progressbar" aria-label="Profile completion" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
+<ul class="ck">${ck.map(x=>`<li class="${x[1]?"done":""}"><button type="button" aria-label="${esc(x[0])}, ${x[1]?"done":"not done yet"}" onclick="${x[2]}"><span class="dot" aria-hidden="true">${x[1]?CHECK_SVG:""}</span>${esc(x[0])}</button></li>`).join("")}</ul></div>`}
+function subHtml(){
+const s=vetStatus();if(!s||s==="approved"||s==="review")return "";
+const ready=checklist(S.draft).every(x=>x[1]);
+return `<div class="cvbox${ready?" rec":""}"><h3>Submit for review</h3><p>${ready?"Everything required is filled in. We will review your profile within one working day.":"Finish every step in the checklist at the top to unlock this button. The video CV is optional, but it helps you stand out."}</p><button class="btn" ${ready?"":"disabled"} onclick="submitProfile()">Submit for review</button></div>`}
+function updProg(){const a=document.getElementById("pf-prog"),b=document.getElementById("pf-sub");if(a)a.innerHTML=progHtml();if(b)b.innerHTML=subHtml()}
+function submitProfile(){
+const d=S.draft;if(!checklist(d).every(x=>x[1])){toast("Finish every step in the checklist first");return}
+saveProfile(true);S.user.vet.submitted=true;toast("Profile submitted for review");render();window.scrollTo(0,0)}
+function approveMe(){S.user.vet.approved=true;toast("Approved. You can now apply for internships.");render()}
+const STOPW=new Set(["university","of","the","and","college","for"]);
+function uniDomainOk(uni,email){
+const dom=email.split("@")[1].toLowerCase();
+if(!/\.ac\.uk$/.test(dom))return "ac";
+if(!UNIS.includes(uni))return "ok";
+const label=dom.split(".").slice(-3)[0];
+const words=uni.toLowerCase().replace(/\(.*?\)/g,"").replace(/[^a-z\s]/g," ").split(/\s+/).filter(w=>w&&!STOPW.has(w));
+const abbr=(UNI_ABBR[uni]||"").toLowerCase().split(/\s+/).map(a=>a.replace(/[^a-z0-9]/g,"")).filter(Boolean);
+if(abbr.includes(label)||label===words.join(""))return "ok";
+if(words.length===1&&words[0]===label)return "ok";
+if(words.length===2&&words[1]===label)return "ok";
+return "no"}
+function verify(){
+const g=gate("student","Log in to verify your university email.");if(g)return g;
+const v=S.user.vet||(S.user.vet={});
+const steps=n=>`<ol class="steps"><li class="${n===1?"on":""}">1. Verify your university email</li><li class="${n===2?"on":""}">2. Complete your profile</li><li>3. Submit for review</li></ol>`;
+if(v.verified||v.idSent)return `<div class="auth">${steps(2)}<h1>${v.verified?"Your university email is verified":"We have your document"}</h1><div class="panel"><p class="meta" style="margin:0 0 16px">${v.verified?"Verified: "+esc(v.email)+" at "+esc(v.uni)+".":"We will check it by hand along with your profile, then delete it."}</p><button class="btn" onclick="go('profile')">Continue to your profile</button></div></div>`;
+if(!S.ver)S.ver={step:1,uni:(S.profile&&S.profile.school)||"",email:"",err:{}};
+const x=S.ver,er=x.err||{};
+const fe=k=>er[k]?`<div class="err" role="alert">${esc(er[k])}</div>`:"";
+if(x.step===2)return `<div class="auth">${steps(1)}<h1>Check your inbox</h1><p class="meta" style="margin-bottom:16px">We have sent a 6-digit code to <b>${esc(x.email)}</b>. It can take a minute to arrive.</p><div class="panel"><form class="stack" onsubmit="return checkCode(event)" novalidate>
+<div><label for="vf-code">6-digit code</label><input class="in" id="vf-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6"${er.code?' aria-invalid="true"':""}>${fe("code")}<div class="hint">Prototype only: no email is really sent. Use the code ${DEMO_CODE}.</div></div>
+<button class="btn" type="submit">Verify</button>
+<button type="button" class="link" style="justify-self:start" onclick="S.ver=null;render()">Use a different address</button></form></div></div>`;
+return `<div class="auth">${steps(1)}<h1>Verify your university email</h1><p class="meta" style="margin-bottom:16px">This shows businesses you are a real student. We only use it to check where you study.</p><div class="panel"><form class="stack" onsubmit="return sendCode(event)" novalidate>
+<div><label for="vf-uni">University</label><div class="cwrap"><input class="in" id="vf-uni" role="combobox" aria-expanded="false" aria-controls="vf-list" aria-autocomplete="list" autocomplete="off" placeholder="Start typing, like Liverpool or UCL" value="${esc(x.uni)}"${er.uni?' aria-invalid="true"':""}><ul class="opts" id="vf-list" role="listbox" hidden></ul></div>${fe("uni")}</div>
+<div><label for="vf-email">University email address</label><input class="in" id="vf-email" type="email" autocomplete="email" placeholder="name@university.ac.uk" value="${esc(x.email)}"${er.email?' aria-invalid="true"':""}>${fe("email")}<div class="hint">It usually ends in .ac.uk and has to match your university.</div></div>
+<button class="btn" type="submit">Send me a code</button></form>
+<details class="tips" style="margin-top:18px"><summary>I do not have a university email</summary><p class="meta" style="margin:10px 0">Upload a student ID, a status letter or your degree certificate instead. We check it by hand, then delete the file straight away.</p><input type="file" id="vf-id" accept="image/*,.pdf" aria-label="Student ID, status letter or degree certificate"><div class="err" id="vf-id-err" role="alert" hidden></div><div style="margin-top:10px"><button type="button" class="btn ghost sm" onclick="sendId()">Send for checking</button></div></details></div></div>`}
+function initVerify(){
+const i=document.getElementById("vf-uni"),l=document.getElementById("vf-list");if(!i||!l)return;
+const c=attachCombo({input:i,list:l,items:suggestUnis,pick:v=>{i.value=v;c.close()}})}
+function sendCode(e){
+e.preventDefault();const x=S.ver,er={};
+x.uni=document.getElementById("vf-uni").value.trim();x.email=document.getElementById("vf-email").value.trim().toLowerCase();
+if(!x.uni)er.uni="Choose your university.";
+if(!validEmail(x.email))er.email="Enter your university email address, like name@university.ac.uk.";
+else{const r=uniDomainOk(x.uni,x.email);
+if(r==="ac")er.email="That does not look like a university address. It usually ends in .ac.uk.";
+else if(r==="no"&&x.uni)er.email="That address does not look like it belongs to "+x.uni+". Check the university and the address. If it is right, use the option below instead."}
+x.err=er;
+if(Object.keys(er).length){render();const el=document.getElementById(er.uni?"vf-uni":"vf-email");if(el)el.focus();return false}
+x.step=2;render();const c=document.getElementById("vf-code");if(c)c.focus();return false}
+function checkCode(e){
+e.preventDefault();const x=S.ver,val=document.getElementById("vf-code").value.trim();
+if(val!==DEMO_CODE){x.err={code:"That code is not right. Check the code and try again."};render();const c=document.getElementById("vf-code");if(c)c.focus();return false}
+const v=S.user.vet;v.verified=true;v.uni=x.uni;v.email=x.email;
+if(S.draft&&!S.draft.school)S.draft.school=x.uni;
+S.ver=null;toast("University email verified");render();return false}
+function sendId(){
+const f=document.getElementById("vf-id"),er=document.getElementById("vf-id-err");
+if(!f.files||!f.files[0]){er.textContent="Choose a file first.";er.hidden=false;return}
+S.user.vet.idSent=true;toast("Thanks. We will check your document with your profile.");render()}
 function login(){
 const f=S.form,er=S.errs;
 return `<div class="auth"><h1>Welcome back</h1><p class="meta" style="margin-bottom:16px">Log in to apply, manage your profile or post internships.</p><div class="panel">
@@ -1176,7 +1292,7 @@ ${sect("Active",act,`No active applications. <div style="margin-top:12px"><butto
 function seedMine(){
 const A={name:"Alex Morgan",school:"University of Manchester",field:"Art & Design",skills:["Figma","Branding","Creativity","Teamwork"],bio:"Second-year design student looking for hands-on studio experience.",photo:"",cvVideo:null,cvDoc:null,email:"alex@example.com"};
 [[3,"shortlisted","4 Nov"],[5,"new","8 Nov"],[4,"declined","29 Oct"]].forEach(([job,status,date])=>S.apps.push({id:S.nextApp++,job,status,date,student:Object.assign({},A)}))}
-function render(){bar();const V={home,browse,job,company,profile,mine,post,login,signup,applicants,applicant,editco,suggested,candidate,matches,interviews,schedule,about,privacy,applications};clearInterval(S.carT);cancelAnimationFrame(S.carRaf);const appEl=document.getElementById("app");appEl.className=(S.view==="home"||S.view==="about")?"wide":"";appEl.innerHTML=V[S.view]()+footer();if(S.view==="home"||S.view==="about")initHome();if(S.view==="profile"&&document.getElementById("pf-uni"))initProfile();if(S.view==="editco"&&document.getElementById("co-name"))initEditCo();if(S.view==="post"&&document.getElementById("ps-skill"))initPost()}
+function render(){bar();const V={home,browse,job,company,profile,mine,post,login,signup,verify,applicants,applicant,editco,suggested,candidate,matches,interviews,schedule,about,privacy,applications};clearInterval(S.carT);cancelAnimationFrame(S.carRaf);const appEl=document.getElementById("app");appEl.className=(S.view==="home"||S.view==="about")?"wide":S.view==="profile"?"pwide":"";appEl.innerHTML=V[S.view]()+footer();if(S.view==="home"||S.view==="about")initHome();if(S.view==="profile"&&document.getElementById("pf-uni"))initProfile();if(S.view==="editco"&&document.getElementById("co-name"))initEditCo();if(S.view==="post"&&document.getElementById("ps-skill"))initPost();if(S.view==="verify"&&document.getElementById("vf-uni"))initVerify()}
 seedApps();seedMatch();seedIv();seedMine();render();
 </script>
 
