@@ -116,6 +116,12 @@ main.pwide{max-width:1280px}
 .cvgrid{display:grid;gap:12px;grid-template-columns:1fr 1fr;align-items:start}
 @media(max-width:860px){.ck{grid-template-columns:1fr 1fr}.cvgrid{grid-template-columns:1fr}}
 .note{border-left:4px solid var(--sun);background:var(--tint)}
+.vtick{color:var(--blue);flex:none;vertical-align:middle}
+.vbadge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--blue);vertical-align:middle;border:1px solid var(--sun);border-radius:999px;padding:1px 9px 1px 4px;background:var(--surf);white-space:nowrap}
+.who-btn .vtick{margin-left:-2px}
+.gbadge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;color:var(--ink);vertical-align:middle;border:1px solid var(--mute);border-radius:999px;padding:1px 9px;background:var(--surf);white-space:nowrap}
+.tgrp{margin-top:16px}
+.tlabel{font-size:13px;font-weight:600;color:var(--mute);margin-bottom:6px}
 @media(max-width:560px){.ck{grid-template-columns:1fr}}
 @media(max-width:560px){.types{grid-template-columns:1fr}}
 .cwrap{position:relative}
@@ -437,7 +443,7 @@ if(vetStatus()!=="approved"){toast(lockMsg());go(vetStatus()==="unverified"?"ver
 if(!S.profile){toast("Create your profile first, then apply.");go("profile");return}
 const cu=coolUntil(id);if(cu){toast("You can apply again on "+fmtD(cu));return}
 if(activeApp(id))return;
-const p=S.profile,stu={name:p.name,school:p.school,field:p.field,skills:[...p.skills],bio:p.bio,photo:p.photo,cvVideo:p.cvVideo,cvDoc:p.cvDoc,email:S.user.email};
+const p=S.profile,stu={name:p.name,school:p.school,field:p.field,gm:p.gm,gy:p.gy,course:p.course,year:p.year,skills:[...p.skills],bio:p.bio,photo:p.photo,cvVideo:p.cvVideo,cvDoc:p.cvDoc,email:S.user.email};
 const old=S.apps.find(a=>a.job===id&&a.student.email===S.user.email);
 if(old){old.status="new";old.student=stu;old.date=today();delete old.withdrawnAt}
 else S.apps.push({id:S.nextApp++,job:id,status:"new",date:new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"}),student:stu});
@@ -502,8 +508,8 @@ const blank=!d.name&&!d.school&&!d.field&&!d.skills.length&&!d.bio&&!d.photo&&!d
 const top=`<div class="meta" style="margin:0 0 14px">How businesses will see you</div>`;
 if(blank)return top+`<div class="empty" style="padding:24px 0">Start filling in the form and your profile appears here.</div>`;
 return top+`<div style="margin-bottom:12px">${avatarHtml(d.photo,d.name,"xl")}</div>
-<h2>${esc(d.name||"Your name")}</h2><div class="meta">${esc(d.school||"Your university")}</div>${d.course||d.year?`<div class="meta">${esc([d.course,d.year].filter(Boolean).join(" \u00b7 "))}</div>`:""}
-<div class="tags">${d.field?`<span class="tag paid">${esc(d.field)}</span>`:""}${d.skills.map(s=>`<span class="tag">${esc(s)}</span>`).join("")}</div>
+<h2>${esc(d.name||"Your name")}${vetStatus()==="approved"?" "+vBadge()+(gradState(d.gm,d.gy)==="graduate"?` <span class="gbadge">Graduate</span>`:""):""}</h2><div class="meta">${esc(d.school||"Your university")}</div>${d.course||d.year?`<div class="meta">${esc([d.course,d.year].filter(Boolean).join(" \u00b7 "))}</div>`:""}
+${tgroups(d.field,d.skills.map(s=>`<span class="tag">${esc(s)}</span>`).join(""))}
 ${d.bio?`<p style="margin:14px 0 0">${esc(d.bio)}</p>`:""}`}
 const fmtSize=b=>b<1048576?Math.max(1,Math.round(b/1024))+" KB":(b/1048576).toFixed(1)+" MB";
 const fmtDur=s=>{s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
@@ -677,7 +683,7 @@ if(!(amt>0)){const e=document.getElementById("pp-err");e.textContent="Add what t
 S.jobs.unshift({id:S.next++,co:S.myCo.id,title,field:document.getElementById("pf").value,type:document.getElementById("py").value,pay:{amt:String(amt),per:document.getElementById("pp-per").value,note:v("pp-note")},loc:v("pc-loc")||S.myCo.loc,dur:v("pd")||"TBC",dl:v("pl")||"Open",skills:[...S.postSkills],desc:v("pe")||"Details coming soon."});
 toast("Internship published");go("mine")}
 function authBtns(){
-if(S.user)return `<div class="who"><button class="who-btn ${isOn(S.user.role==="student"?"profile":"mine")?"on":""}" onclick="go('${S.user.role==="student"?"profile":"mine"}')" aria-label="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}" title="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}">${avatarHtml(S.user.role==="student"?(S.profile&&S.profile.photo):(S.myCo&&S.myCo.logo),S.user.name,"sm")}<span class="uname">${esc(S.user.name)}</span></button><button class="btn ghost sm" onclick="logout()">Log out</button></div>`;
+if(S.user)return `<div class="who"><button class="who-btn ${isOn(S.user.role==="student"?"profile":"mine")?"on":""}" onclick="go('${S.user.role==="student"?"profile":"mine"}')" aria-label="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}" title="${S.user.role==="student"?"View and edit your profile":"Open your dashboard"}">${avatarHtml(S.user.role==="student"?(S.profile&&S.profile.photo):(S.myCo&&S.myCo.logo),S.user.name,"sm")}<span class="uname">${esc(S.user.name)}</span>${S.user.role==="student"&&vetStatus()==="approved"?`<span title="Verified student" role="img" aria-label="Verified student">${VTICK(16)}</span>`:""}</button><button class="btn ghost sm" onclick="logout()">Log out</button></div>`;
 return `<div class="seg" role="group" aria-label="Viewing as"><button class="${S.role==="student"?"on":""}" onclick="setRole('student')">I&#8217;m a student</button><button class="${S.role==="business"?"on":""}" onclick="setRole('business')">I&#8217;m a business</button></div><button class="btn ghost sm" onclick="go('login')">Log in</button><button class="btn sm" onclick="go('signup')">Sign up</button>`}
 function gate(role,msg){
 if(!S.user)return `<div class="auth"><div class="panel"><h2>Log in to continue</h2><p class="meta" style="margin:6px 0 16px">${msg}</p><div class="cta-row"><button class="btn" onclick="needAuth('login')">Log in</button><button class="btn ghost" onclick="needAuth('signup')">Create an account</button></div></div></div>`;
@@ -718,7 +724,7 @@ const em=role==="student"?"alex@example.com":"harbour@example.com";
 let acc=S.accounts.find(a=>a.email===em);
 if(!acc){acc=role==="student"?{role,name:"Alex Morgan",email:em,pw:"demo1234",profile:{name:"Alex Morgan",school:"University of Manchester",field:"Art & Design",skills:["Figma","Branding","Creativity","Teamwork"],bio:"Second-year design student looking for hands-on studio experience.",course:"Graphic Design BA",year:"2nd year",gm:"06",gy:"2027",exp:"Designed posters and social posts for the university design society. Part-time barista for two years, so used to busy shifts and talking to customers.",linkedin:"https://www.linkedin.com/in/alex-morgan-design"},vet:{verified:true,approved:true,uni:"University of Manchester",email:"alex.morgan@student.manchester.ac.uk"}}:{role,name:"Harbour Studio",email:em,pw:"demo1234",myCo:co(1)};S.accounts.push(acc)}
 signIn(acc,false)}
-function logout(){if(S.user){S.user.profile=S.profile;S.user.myCo=S.myCo}S.user=null;S.profile=null;S.myCo=null;toast("Logged out");go("home")}
+function logout(){S.clock=0;if(S.user){S.user.profile=S.profile;S.user.myCo=S.myCo}S.user=null;S.profile=null;S.myCo=null;toast("Logged out");go("home")}
 function signup(){
 const t=S.authType,f=S.form,er=S.errs;
 const fe=k=>er[k]?`<div class="err" id="e-${k}" role="alert">${esc(er[k])}</div>`:"";
@@ -742,12 +748,30 @@ const gradYears=()=>{const y=new Date().getFullYear(),out=[];for(let i=y-2;i<=y+
 const LI_RE=/^(https?:\/\/)?([a-z]{2,3}\.)?linkedin\.com\/in\/[^\s\/]+/i;
 const DEMO_CODE="123456";
 const CHECK_SVG=`<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+const DAYMS=864e5;
+const vNow=()=>Date.now()+(S.clock||0)*DAYMS;
+const fmtFull=ts=>new Date(ts).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+const fmtMY=ts=>new Date(ts).toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+function gradEnd(gm,gy,add){if(!gm||!gy)return null;return new Date(+gy+(add||0),+gm,0,23,59,59).getTime()}
+function gradState(gm,gy){const e=gradEnd(gm,gy);if(!e)return null;const n=vNow();return n<=e?"student":n>gradEnd(gm,gy,2)?"expired":"graduate"}
+const VTICK=(z)=>`<svg class="vtick" viewBox="0 0 24 24" width="${z}" height="${z}" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.5 3.5L17 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const vBadge=()=>`<span class="vbadge">${VTICK(14)}Verified</span>`;
+const tgroup=(label,inner)=>`<div class="tgrp"><div class="tlabel">${label}</div><div class="tags" style="margin-top:0">${inner}</div></div>`;
+const tgroups=(f,sk)=>(f?tgroup("Field of interest",`<span class="tag paid">${esc(f)}</span>`):"")+(sk?tgroup("Top skills",sk):"");
+const vtag=o=>" "+vBadge()+(gradState(o.gm,o.gy)==="graduate"?` <span class="gbadge">Graduate</span>`:"");
 function vetStatus(){const u=S.user;if(!u||u.role!=="student")return null;const v=u.vet||(u.vet={});
-if(v.approved)return "approved";if(v.submitted)return "review";if(!(v.verified||v.idSent))return "unverified";return "incomplete"}
+if(v.approved){const p=S.profile;return p&&gradState(p.gm,p.gy)==="expired"?"expired":"approved"}
+if(v.submitted)return "review";
+if(v.declined&&vNow()<v.declined.until)return "declined";
+if(v.changes)return "changes";
+if(!(v.verified||v.idSent))return "unverified";return "incomplete"}
 function isLocked(){return !!S.user&&S.user.role==="student"&&vetStatus()!=="approved"}
-function lockMsg(){const s=vetStatus();
+function lockMsg(){const s=vetStatus(),v=S.user.vet||{};
 if(s==="unverified")return "Verify your university email first. You can apply once the RightTern team has approved your profile.";
 if(s==="review")return "Your profile is being reviewed. You can apply as soon as it is approved.";
+if(s==="changes")return "The team has asked for a few changes to your profile. Update it and submit it again, then you can apply once it is approved.";
+if(s==="declined")return "Your profile was not approved this time. You can reapply on "+fmtFull(v.declined.until)+".";
+if(s==="expired")return "Your profile has expired, because it is more than two years since you graduated.";
 return "Finish your profile and submit it for review. You can apply once the RightTern team has approved it."}
 function checklist(d){const v=(S.user&&S.user.vet)||{};return [
 ["Verify your university email",!!(v.verified||v.idSent),"go('verify')"],
@@ -760,22 +784,46 @@ function checklist(d){const v=(S.user&&S.user.vet)||{};return [
 ["Experience",d.exp.trim().length>=20,"focusField('pf-exp')"],
 ["LinkedIn link",LI_RE.test(d.linkedin.trim()),"focusField('pf-li')"]]}
 function focusField(id){const e=document.getElementById(id);if(e){e.scrollIntoView({block:"center"});e.focus()}}
-function progHtml(){
-const s=vetStatus();if(!s)return "";
-if(s==="approved")return `<div class="panel note" style="margin-bottom:16px"><b>You are approved.</b><div class="meta" style="margin:4px 0 0">You can apply for internships and be matched with businesses.</div></div>`;
-if(s==="review")return `<div class="panel note" style="margin-bottom:16px"><b>Awaiting review</b><div class="meta" style="margin:4px 0 0">We will review your profile within one working day and email you. You can keep improving it while you wait. You can apply once you are approved.</div><div class="demo"><p class="meta">Prototype shortcut</p><button class="btn ghost sm" onclick="approveMe()">Pretend the team approved me</button></div></div>`;
+function protoBox(s){
+const team=s==="review"?`<button class="btn ghost sm" onclick="teamAct('approve')">Approve</button><button class="btn ghost sm" onclick="teamAct('changes')">${S.user.vet.changeRound?"Still needs changes":"Ask for changes"}</button><button class="btn ghost sm" onclick="teamAct('decline')">Decline</button>`:"";
+return `<div class="demo"><p class="meta">Prototype shortcuts${s==="review"?": pretend the team decides":""}</p><div class="cta-row">${team}<button class="btn ghost sm" onclick="skipDays(7)">Skip 1 week</button><button class="btn ghost sm" onclick="skipDays(365)">Skip 1 year</button>${S.clock?`<button class="btn ghost sm" onclick="skipDays(0)">Reset date</button>`:""}</div><p class="meta" style="margin:8px 0 0">Prototype date: ${fmtFull(vNow())}</p></div>`}
+function noteBox(t,body,extra){return `<div class="panel note" style="margin-bottom:16px"><b>${t}</b><div class="meta" style="margin:4px 0 0">${body}</div>${extra||""}</div>`}
+function checkPanel(){
 const ck=checklist(S.draft),n=ck.filter(x=>x[1]).length,pct=Math.round(n/ck.length*100);
 return `<div class="panel" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;flex-wrap:wrap"><b>Your profile is ${pct}% complete</b><span class="meta" style="margin:0">${n} of ${ck.length} steps done</span></div><div class="prog" role="progressbar" aria-label="Profile completion" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>
 <ul class="ck">${ck.map(x=>`<li class="${x[1]?"done":""}"><button type="button" aria-label="${esc(x[0])}, ${x[1]?"done":"not done yet"}" onclick="${x[2]}"><span class="dot" aria-hidden="true">${x[1]?CHECK_SVG:""}</span>${esc(x[0])}</button></li>`).join("")}</ul></div>`}
+function progHtml(){
+const s=vetStatus();if(!s)return "";
+const v=S.user.vet,p=S.profile;
+if(s==="approved"){const gs=p&&gradState(p.gm,p.gy),until=p&&gradEnd(p.gm,p.gy,2);
+return noteBox("You are approved "+vBadge(),"You can apply for internships and be matched with businesses."+(gs==="graduate"?" You now show as Graduate, and your profile stays active until "+fmtMY(until)+".":""),protoBox(s))}
+if(s==="expired")return noteBox("Your profile has expired","It has been more than two years since you graduated, so you can no longer apply or be matched. If you think this is a mistake, email contact@righttern.com.",protoBox(s));
+if(s==="review")return noteBox("Awaiting review","Submitted on "+fmtFull(v.submittedOn||vNow())+". We will review your profile within one working day and email you. You can keep improving it while you wait. You can apply once you are approved.",protoBox(s));
+if(s==="declined")return noteBox("Your profile was not approved this time",esc(v.declined.reason)+"<br>You can reapply on <b>"+fmtFull(v.declined.until)+"</b>, one week after the decision. Until then you can keep editing your profile, but the submit button is locked. We have also emailed you this.",protoBox(s));
+if(s==="changes")return noteBox("We have asked for a few changes",esc(v.changes.note)+"<br>Update your profile below, then submit it again straight away. This is your one chance to fix it. If it still needs changes after you resubmit, you can reapply one week later.")+checkPanel();
+const again=v.declined?noteBox("You can reapply now","Update your profile using our feedback, then submit it again. Last time we said: "+esc(v.declined.reason)):"";
+return again+checkPanel()}
 function subHtml(){
-const s=vetStatus();if(!s||s==="approved"||s==="review")return "";
-const ready=checklist(S.draft).every(x=>x[1]);
-return `<div class="cvbox${ready?" rec":""}"><h3>Submit for review</h3><p>${ready?"Everything required is filled in. We will review your profile within one working day.":"Finish every step in the checklist at the top to unlock this button. The video CV is optional, but it helps you stand out."}</p><button class="btn" ${ready?"":"disabled"} onclick="submitProfile()">Submit for review</button></div>`}
+const s=vetStatus();if(!s||s==="approved"||s==="review"||s==="expired")return "";
+const v=S.user.vet;
+if(s==="declined")return `<div class="cvbox"><h3>Submit for review</h3><p>You can reapply on ${fmtFull(v.declined.until)}. Until then this button is locked.</p><button class="btn" disabled>Submit for review</button></div>`;
+const ready=checklist(S.draft).every(x=>x[1]),lbl=v.changes?"Resubmit for review":"Submit for review";
+return `<div class="cvbox${ready?" rec":""}"><h3>${lbl}</h3><p>${ready?"Everything required is filled in. We will review your profile within one working day.":"Finish every step in the checklist at the top to unlock this button. The video CV is optional, but it helps you stand out."}</p><button class="btn" ${ready?"":"disabled"} onclick="submitProfile()">${lbl}</button></div>`}
 function updProg(){const a=document.getElementById("pf-prog"),b=document.getElementById("pf-sub");if(a)a.innerHTML=progHtml();if(b)b.innerHTML=subHtml()}
 function submitProfile(){
-const d=S.draft;if(!checklist(d).every(x=>x[1])){toast("Finish every step in the checklist first");return}
-saveProfile(true);S.user.vet.submitted=true;toast("Profile submitted for review");render();window.scrollTo(0,0)}
-function approveMe(){S.user.vet.approved=true;toast("Approved. You can now apply for internships.");render()}
+const d=S.draft,v=S.user.vet;
+if(vetStatus()==="declined"){toast("You can reapply on "+fmtFull(v.declined.until));return}
+if(!checklist(d).every(x=>x[1])){toast("Finish every step in the checklist first");return}
+saveProfile(true);v.submitted=true;v.submittedOn=vNow();delete v.changes;delete v.declined;
+toast("Profile submitted for review");render();window.scrollTo(0,0)}
+function teamAct(a){
+const v=S.user.vet;v.submitted=false;
+if(a==="approve"){v.approved=true;delete v.changes;delete v.declined;delete v.changeRound;toast("Approved. You can now apply for internships.")}
+if(a==="changes"&&v.changeRound)a="decline2";
+if(a==="changes"){v.changes={note:"Please add a little more detail about what you did in each role, and check that your LinkedIn link goes to your own profile.",on:vNow()};v.changeRound=1;toast("The team asked for changes")}
+if(a==="decline"||a==="decline2"){v.declined={reason:a==="decline2"?"We asked for changes and your profile still needs some work. Please use our feedback and try again.":"We could not match your profile to your LinkedIn page. Please check your details and try again.",until:vNow()+7*DAYMS};delete v.changes;delete v.changeRound;toast(a==="decline2"?"Still needs changes, so the profile is declined for a week":"The team declined this profile")}
+render();window.scrollTo(0,0)}
+function skipDays(n){S.clock=n?(S.clock||0)+n:0;render()}
 const STOPW=new Set(["university","of","the","and","college","for"]);
 function uniDomainOk(uni,email){
 const dom=email.split("@")[1].toLowerCase();
@@ -868,7 +916,7 @@ const all=S.apps.filter(a=>a.job===j.id),f=S.appFilter,cnt=s=>all.filter(a=>a.st
 const list=all.filter(a=>f==="all"||a.status===f);
 const chip=(k,l,n)=>`<button class="chip ${f===k?"on":""}" onclick="setAppFilter('${k}')">${l} (${n})</button>`;
 const rows=list.map(a=>{const s=a.student,extra=s.skills.length-3;
-return `<button class="row" onclick="go('applicant',${a.id})">${avatarHtml(s.photo,s.name,"xl").replace("av-xl","av-md")}<div class="mid"><h3>${esc(s.name)}${a.demo?` <span class="tag">Example</span>`:""}</h3><div class="meta">${esc(s.school||"University not added")}${s.field?", "+esc(s.field):""}</div>
+return `<button class="row" onclick="go('applicant',${a.id})">${avatarHtml(s.photo,s.name,"xl").replace("av-xl","av-md")}<div class="mid"><h3>${esc(s.name)}${vtag(s)}${a.demo?` <span class="tag">Example</span>`:""}</h3><div class="meta">${esc(s.school||"University not added")}${s.field?", "+esc(s.field):""}</div>
 <div class="tags">${s.skills.slice(0,3).map(k=>`<span class="tag">${esc(k)}</span>`).join("")}${extra>0?`<span class="tag">+${extra} more</span>`:""}${s.cvVideo?`<span class="tag paid">Video CV</span>`:""}${s.cvDoc?`<span class="tag">Document CV</span>`:""}</div></div>
 <div class="rt">${statusPill(a.status)}<span class="d">Applied ${esc(a.date)}</span></div></button>`}).join("");
 return `<button class="back" onclick="go('mine')">Back to dashboard</button><h1 style="font-size:30px;margin-bottom:4px">Applicants for ${esc(j.title)}</h1>${tags(j)}
@@ -882,8 +930,8 @@ const a=S.apps.find(x=>x.id==S.id),j=a&&ownJob(a.job);
 if(!a||!j)return `<div class="panel"><h2>Applicant not found</h2><button class="btn" onclick="go('mine')">Back to dashboard</button></div>`;
 const s=a.student;
 return `<button class="back" onclick="go('applicants',${j.id})">Back to applicants</button>
-<div class="panel"><div class="dash-head" style="margin-bottom:0"><div class="dh-l">${avatarHtml(s.photo,s.name,"lg")}<div><h1 style="font-size:28px">${esc(s.name)}${a.demo?` <span class="tag" style="vertical-align:middle">Example</span>`:""}</h1><div class="meta">${esc(s.school||"University not added")}</div></div></div>${statusPill(a.status)}</div>
-<div class="tags">${s.field?`<span class="tag paid">${esc(s.field)}</span>`:""}${s.skills.map(k=>`<span class="tag">${esc(k)}</span>`).join("")}</div>
+<div class="panel"><div class="dash-head" style="margin-bottom:0"><div class="dh-l">${avatarHtml(s.photo,s.name,"lg")}<div><h1 style="font-size:28px">${esc(s.name)}${vtag(s)}${a.demo?` <span class="tag" style="vertical-align:middle">Example</span>`:""}</h1><div class="meta">${esc(s.school||"University not added")}</div></div></div>${statusPill(a.status)}</div>
+${tgroups(s.field,s.skills.map(k=>`<span class="tag">${esc(k)}</span>`).join(""))}
 <p class="meta" style="margin:12px 0 0">Applied for ${esc(j.title)} on ${esc(a.date)}</p>
 ${a.status==="withdrawn"?`<p class="meta" style="margin:14px 0 0">${esc(s.name)} withdrew this application. You cannot shortlist or decline it.</p>`:`<div class="appbar">${a.status!=="shortlisted"?`<button class="btn" onclick="setStatus(${a.id},'shortlisted')">Shortlist</button>`:""}${a.status!=="declined"?`<button class="btn ghost" onclick="setStatus(${a.id},'declined')">Decline</button>`:""}${a.status!=="new"?`<button class="link" onclick="setStatus(${a.id},'new')">Move back to new</button>`:""}</div>`}
 ${a.status!=="declined"&&a.status!=="withdrawn"?ivPanel(a,j):""}
@@ -984,7 +1032,7 @@ let list=all.filter(a=>f==="all"||a.status===f).map(a=>({a,m:matchScore(a.studen
 if(S.appSort==="match")list.sort((x,y)=>y.m.score-x.m.score);
 const chip=(k,l,n)=>`<button class="chip ${f===k?"on":""}" onclick="setAppFilter('${k}')">${l} (${n})</button>`;
 const rows=list.map(({a,m})=>{const s=a.student,extra=s.skills.length-3,rs=reasons(m,s,"biz");
-return `<button class="row" onclick="go('applicant',${a.id})">${avatarHtml(s.photo,s.name,"md")}<div class="mid"><h3>${esc(s.name)}${a.demo?` <span class="tag">Example</span>`:""} ${tierTag(m)}${ivTag(s.email,j.id)}</h3><div class="meta">${esc(s.school||"University not added")}${s.field?", "+esc(s.field):""}</div>
+return `<button class="row" onclick="go('applicant',${a.id})">${avatarHtml(s.photo,s.name,"md")}<div class="mid"><h3>${esc(s.name)}${vtag(s)}${a.demo?` <span class="tag">Example</span>`:""} ${tierTag(m)}${ivTag(s.email,j.id)}</h3><div class="meta">${esc(s.school||"University not added")}${s.field?", "+esc(s.field):""}</div>
 <div class="tags">${s.skills.slice(0,3).map(k=>`<span class="tag">${esc(k)}</span>`).join("")}${extra>0?`<span class="tag">+${extra} more</span>`:""}${s.cvVideo?`<span class="tag paid">Video CV</span>`:""}${s.cvDoc?`<span class="tag">Document CV</span>`:""}</div>${rs?`<div class="rsn">${rs}</div>`:""}</div>
 <div class="rt">${statusPill(a.status)}<span class="d">Applied ${esc(a.date)}</span></div></button>`}).join("");
 return `${jobHead(j,"applicants")}
@@ -997,7 +1045,7 @@ const g=gate("business","Log in to see suggested students.");if(g)return g;
 const j=ownJob(S.id);if(!j)return `<div class="panel"><h2>Internship not found</h2><button class="btn" onclick="go('mine')">Back to dashboard</button></div>`;
 const sug=suggestedFor(j);
 const rows=sug.map(({c,m})=>{const inv=invitedTo(j.id,c.email),rs=reasons(m,c,"biz");
-return `<div class="candrow">${avatarHtml(c.photo,c.name,"md")}<div class="mid"><h3>${esc(c.name)}${c.demo?` <span class="tag">Example</span>`:""} ${tierTag(m)}</h3><div class="meta">${esc(c.school||"University not added")}${c.field?", "+esc(c.field):""}</div>
+return `<div class="candrow">${avatarHtml(c.photo,c.name,"md")}<div class="mid"><h3>${esc(c.name)}${vtag(c)}${c.demo?` <span class="tag">Example</span>`:""} ${tierTag(m)}</h3><div class="meta">${esc(c.school||"University not added")}${c.field?", "+esc(c.field):""}</div>
 <div class="tags">${(c.skills||[]).slice(0,4).map(k=>`<span class="tag ${m.hit.includes(k)?"good":""}">${esc(k)}</span>`).join("")}${c.cvVideo?`<span class="tag paid">Video CV</span>`:""}${c.cvDoc?`<span class="tag">Document CV</span>`:""}</div>${rs?`<div class="rsn">${rs}</div>`:""}</div>
 <div class="jr-r"><button class="btn ghost sm" onclick="S.ctxJob=${j.id};go('candidate','${c.id}')">View profile</button>${inv?`<button class="btn sm" disabled>Invited</button>`:`<button class="btn sm" onclick="invite(${j.id},'${c.id}')">Invite to apply</button>`}</div></div>`}).join("");
 return `${jobHead(j,"suggested")}
@@ -1011,8 +1059,8 @@ const c=candidates().find(x=>x.id===S.id),j=ownJob(S.ctxJob);
 if(!c||!j)return `<div class="panel"><h2>Student not found</h2><button class="btn" onclick="go('mine')">Back to dashboard</button></div>`;
 const m=matchScore(c,j),inv=invitedTo(j.id,c.email),rs=reasons(m,c,"biz");
 return `<button class="back" onclick="go('suggested',${j.id})">Back to suggested shortlist</button>
-<div class="panel"><div class="dash-head" style="margin-bottom:0"><div class="dh-l">${avatarHtml(c.photo,c.name,"lg")}<div><h1 style="font-size:28px">${esc(c.name)}${c.demo?` <span class="tag" style="vertical-align:middle">Example</span>`:""}</h1><div class="meta">${esc(c.school||"University not added")}</div></div></div>${tierTag(m)}</div>
-<div class="tags">${c.field?`<span class="tag paid">${esc(c.field)}</span>`:""}${(c.skills||[]).map(k=>`<span class="tag ${m.hit.includes(k)?"good":""}">${esc(k)}</span>`).join("")}</div>
+<div class="panel"><div class="dash-head" style="margin-bottom:0"><div class="dh-l">${avatarHtml(c.photo,c.name,"lg")}<div><h1 style="font-size:28px">${esc(c.name)}${vtag(c)}${c.demo?` <span class="tag" style="vertical-align:middle">Example</span>`:""}</h1><div class="meta">${esc(c.school||"University not added")}</div></div></div>${tierTag(m)}</div>
+${tgroups(c.field,(c.skills||[]).map(k=>`<span class="tag ${m.hit.includes(k)?"good":""}">${esc(k)}</span>`).join(""))}
 ${rs?`<div class="rsn">${rs} for ${esc(j.title)}.</div>`:""}
 <div class="appbar">${inv?`<button class="btn" disabled>Invited</button>`:`<button class="btn" onclick="invite(${j.id},'${c.id}')">Invite to apply</button>`}</div>
 <p class="meta" style="margin:14px 0 0">Contact details are shared once they apply.</p></div>
