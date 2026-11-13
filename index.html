@@ -127,6 +127,9 @@ textarea.in{min-height:96px;resize:vertical}
 .otp-row{text-align:center;margin:8px 0 4px;min-width:0}
 .otp-row .hint,.otp-row .err{margin:12px 0 0;text-align:center}
 @media(max-width:420px){.otp{gap:6px}.otp .gap{width:6px}.otp-d{height:56px;font-size:22px}}
+.btn.ghost.danger{color:var(--err);border-color:var(--err)}
+.btn.danger-solid{background:var(--err);color:#fff}
+.ffl input[type=datetime-local].in,.ffl input[type=date].in,.ffl input[type=time].in{appearance:none;-webkit-appearance:none;min-height:56px}
 .seg.wide{width:100%;padding:3px}
 .seg.wide button{flex:1;padding:12px 10px;font-size:15px;font-weight:600}
 .auth .panel{padding:28px}
@@ -389,18 +392,18 @@ cos:[
 {id:2,name:"Northline Labs",ind:"Engineering",loc:"Liverpool",about:"We build software for logistics teams. Our interns ship real features and get a mentor from day one."},
 {id:3,name:"Ledger & Co",ind:"Finance",loc:"London",about:"An independent advisory firm for growing businesses. You will work with real numbers and real founders."}],
 jobs:[
-{id:1,co:1,title:"Brand design intern",loc:"Liverpool",skills:["Adobe Illustrator","Branding","Creativity","Figma"],field:"Design",type:"Hybrid",pay:{amt:"12.50",per:"hour",note:"About 25 hours a week. Paid monthly."},dur:"12 weeks",dl:"30 Nov",desc:"Help the team build identities for small clients. You will sketch, present ideas, and polish final files."},
-{id:2,co:1,title:"Social content intern",loc:"Liverpool",skills:["Social media management","Content creation","Copywriting","Canva"],field:"Marketing",type:"Remote",pay:{amt:"11.50",per:"hour",note:"About 15 hours a week. Paid monthly."},dur:"8 weeks",dl:"15 Dec",desc:"Plan and make short posts for our studio channels and a few client accounts."},
-{id:3,co:2,title:"Junior web developer intern",loc:"Liverpool",skills:["JavaScript","React","Git","Teamwork"],field:"Engineering",type:"On-site",pay:{amt:"13.00",per:"hour",note:"Full time, 37.5 hours a week. Paid monthly."},dur:"10 weeks",dl:"5 Dec",desc:"Work in a small team on a React and Node codebase. Code review and pairing are built in."},
-{id:4,co:2,title:"Data analyst intern",loc:"Manchester",skills:["SQL","Data analysis","Microsoft Excel","Power BI"],field:"Engineering",type:"Hybrid",pay:{amt:"14.00",per:"hour",note:"About 30 hours a week. Paid monthly."},dur:"12 weeks",dl:"20 Nov",desc:"Clean delivery data, build dashboards, and explain what the numbers mean to the ops team."},
-{id:5,co:3,title:"Finance assistant intern",skills:["Microsoft Excel","Bookkeeping","Attention to detail","Accounting"],field:"Finance",type:"On-site",pay:{amt:"12.00",per:"hour",note:"Full time, 37.5 hours a week. Paid monthly."},dur:"6 weeks",dl:"1 Dec",desc:"Support month-end reporting and client bookkeeping, with training on the way."},
-{id:6,co:3,title:"Marketing research intern",skills:["Market research","Report writing","Microsoft Excel","Communication"],field:"Marketing",type:"Remote",pay:{amt:"11.50",per:"hour",note:"About 20 hours a week. Paid monthly."},dur:"8 weeks",dl:"10 Dec",desc:"Research small business trends and turn them into short briefs for our advisers."}],
+{id:1,co:1,title:"Brand design intern",loc:"Liverpool",skills:["Adobe Illustrator","Branding","Creativity","Figma"],field:"Art & Design",type:"Hybrid",pay:{amt:"12.50",per:"hour",note:"About 25 hours a week. Paid monthly."},dur:"12 weeks",dl:"30 Nov",desc:"Help the team build identities for small clients. You will sketch, present ideas, and polish final files."},
+{id:2,co:1,title:"Social content intern",loc:"Liverpool",skills:["Social media management","Content creation","Copywriting","Canva"],field:"Marketing & Advertising",type:"Remote",pay:{amt:"11.50",per:"hour",note:"About 15 hours a week. Paid monthly."},dur:"8 weeks",dl:"15 Dec",desc:"Plan and make short posts for our studio channels and a few client accounts."},
+{id:3,co:2,title:"Junior web developer intern",loc:"Liverpool",skills:["JavaScript","React","Git","Teamwork"],field:"Computer Science & IT",type:"On-site",pay:{amt:"13.00",per:"hour",note:"Full time, 37.5 hours a week. Paid monthly."},dur:"10 weeks",dl:"5 Dec",desc:"Work in a small team on a React and Node codebase. Code review and pairing are built in."},
+{id:4,co:2,title:"Data analyst intern",loc:"Manchester",skills:["SQL","Data analysis","Microsoft Excel","Power BI"],field:"Data Science & Analytics",type:"Hybrid",pay:{amt:"14.00",per:"hour",note:"About 30 hours a week. Paid monthly."},dur:"12 weeks",dl:"20 Nov",desc:"Clean delivery data, build dashboards, and explain what the numbers mean to the ops team."},
+{id:5,co:3,title:"Finance assistant intern",skills:["Microsoft Excel","Bookkeeping","Attention to detail","Accounting"],field:"Accounting & Finance",type:"On-site",pay:{amt:"12.00",per:"hour",note:"Full time, 37.5 hours a week. Paid monthly."},dur:"6 weeks",dl:"1 Dec",desc:"Support month-end reporting and client bookkeeping, with training on the way."},
+{id:6,co:3,title:"Marketing research intern",skills:["Market research","Report writing","Microsoft Excel","Communication"],field:"Marketing & Advertising",type:"Remote",pay:{amt:"11.50",per:"hour",note:"About 20 hours a week. Paid monthly."},dur:"8 weeks",dl:"10 Dec",desc:"Research small business trends and turn them into short briefs for our advisers."}],
 next:100};
 const FIELDS=["Design","Engineering","Marketing","Finance","Other"];
 const co=id=>S.cos.find(c=>c.id==id);
 const v=id=>document.getElementById(id).value.trim();
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),2400)}
-function go(view,id){S.view=view;S.id=id||null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="verify")S.ver=null;if(view==="review")S.rv={checks:[false,false,false,false,false],note:""};if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
+function go(view,id){S.view=view;S.id=id||null;S.confirmDel=null;if(view==="login"||view==="signup"){S.errs={};S.showPw=false}if(view==="profile")initDraft();if(view==="verify")S.ver=null;if(view==="review")S.rv={checks:[false,false,false,false,false],note:""};if(view==="editco")initCoDraft();if(view==="post")S.postSkills=[];if(view==="schedule")S.sch={dur:"30",mode:"Video call",where:"",note:"",slots:[{d:"",t:""},{d:"",t:""},{d:"",t:""}]};render();window.scrollTo(0,0)}
 function setRole(r){S.role=r;go(S.view==="home"?"home":(r==="student"?"browse":"mine"))}
 function start(r){if(!S.user)S.role=r;go(r==="student"?"browse":"mine")}
 function curTheme(){return document.documentElement.getAttribute("data-theme")||"light"}
@@ -427,7 +430,7 @@ return `<div class="hero"><h1>Find the internship that&#8217;s right for you</h1
 <div class="tools"><input class="in" placeholder="Search by role, company, field or location" value="${esc(S.q)}" oninput="search(this.value)" aria-label="Search internships"></div>
 <div class="tools"><label for="f-loc" style="margin:0;font-weight:500">Location</label><select class="in" id="f-loc" style="width:auto;flex:0 1 220px" onchange="setF('loc',this.value)"><option value="All">All locations</option>${[...new Set(S.jobs.filter(j=>j.open!==false).map(j=>jobLoc(j)))].filter(Boolean).sort().map(l=>`<option ${S.loc===l?"selected":""}>${esc(l)}</option>`).join("")}</select></div>
 <div class="tools">${["All","Remote","Hybrid","On-site"].map(t=>chip("type",t)).join("")}</div>
-<div class="tools">${["All",...FIELDS.slice(0,4)].map(f=>chip("field",f)).join("")}</div>
+<div class="tools"><label for="f-field" style="margin:0;font-weight:500">Field</label><select class="in" id="f-field" style="width:auto;flex:0 1 300px" onchange="setF('field',this.value)"><option value="All">All fields</option>${Object.entries(INTERESTS).map(([g,l])=>`<optgroup label="${esc(g)}">${l.map(o=>`<option ${S.field===o?"selected":""}>${esc(o)}</option>`).join("")}</optgroup>`).join("")}</select></div>
 <div id="results">${listHtml()}</div>`}
 const MARK=`<svg viewBox="636 300 654 966" aria-hidden="true"><circle cx="965" cy="444" r="137" fill="currentColor"/><path d="M690 650H1245Q1281 650 1281 690V1243Q1281 1256 1270 1250L1151 1130V870L750 1237Q715 1262 683 1235L655 1205Q635 1170 662 1141L1055 780H779V940L660 1062Q648 1062 648 1052V690Q648 650 690 650Z" fill="currentColor"/></svg>`;
 function marqGroup(items,cls,fn){return `<div class="mgroup">${items.map(x=>fn(x)).join("")}</div>`}
@@ -612,7 +615,7 @@ return `<h1 style="font-size:36px;margin-bottom:16px">Your profile</h1><div id="
 </section>
 <section class="fsec"><h2 class="fh">Skills and experience</h2>
 <div class="fld-row"><div class="ffl sel"><select class="in" id="pf-field"><option value="">Choose</option>${opts}</select><label for="pf-field">Field of interest</label></div></div>
-<div class="fld-row"><div class="ffl chipsfl"><div class="chips cwrap" id="pf-chips"><span id="pf-chiplist" style="display:contents"></span><input id="pf-skill" role="combobox" aria-expanded="false" aria-controls="sk-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill, like Communication"><ul class="opts" id="sk-list" role="listbox" hidden></ul></div><label for="pf-skill">Your top 5 skills <span class="count" id="pf-count" aria-live="polite"></span></label></div><div class="hint">Soft skills count too, like punctuality.</div></div>
+<div class="fld-row"><div class="ffl chipsfl"><div class="chips cwrap" id="pf-chips"><span id="pf-chiplist" style="display:contents"></span><input id="pf-skill" role="combobox" aria-expanded="false" aria-controls="sk-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill"><ul class="opts" id="sk-list" role="listbox" hidden></ul></div><label for="pf-skill">Your top 5 skills <span class="count" id="pf-count" aria-live="polite"></span></label></div><div class="hint">Soft skills count too, like punctuality.</div></div>
 <div class="fgrid">
 <div class="fld-row"><div class="ffl"><textarea class="in" id="pf-exp" placeholder="Part-time jobs, volunteering, societies, projects">${esc(d.exp)}</textarea><label for="pf-exp">Experience</label></div></div>
 <div class="fld-row"><div class="ffl"><textarea class="in" id="pf-bio" placeholder=" ">${esc(d.bio)}</textarea><label for="pf-bio">A short intro</label></div></div>
@@ -659,7 +662,7 @@ name.addEventListener("input",()=>{d.name=name.value;updPreview()});
 bio.addEventListener("input",()=>{d.bio=bio.value;updPreview()});
 field.addEventListener("change",()=>{d.field=field.value;updPreview()});
 for(const [id,k] of [["pf-course","course"],["pf-year","year"],["pf-gm","gm"],["pf-gy","gy"],["pf-exp","exp"],["pf-li","linkedin"]]){const el=$(id);const fn=()=>{d[k]=el.value;updPreview()};el.addEventListener("input",fn);el.addEventListener("change",fn)}
-const drawChips=()=>{cl.innerHTML=chipsHtml();const n=d.skills.length,full=n>=MAX_SKILLS;$("pf-count").textContent=n+" of "+MAX_SKILLS;sk.placeholder=full?"Remove a skill to add another":"Type a skill, like Communication"};
+const drawChips=()=>{cl.innerHTML=chipsHtml();const n=d.skills.length,full=n>=MAX_SKILLS;$("pf-count").textContent=n+" of "+MAX_SKILLS;sk.placeholder=full?"Remove a skill to add another":"Type a skill"};
 drawChips();
 const uc=attachCombo({input:uni,list:$("uni-list"),items:suggestUnis,pick:v=>{uni.value=v;d.school=v;uc.close();updPreview()}});
 uni.addEventListener("input",()=>{d.school=uni.value;updPreview()});
@@ -722,15 +725,20 @@ function saveProfile(quiet){
 const d=S.draft;if(!d.name.trim()){toast("Add your name first");document.getElementById("pf-name").focus();return}
 S.profile={name:d.name.trim(),school:d.school.trim(),course:d.course.trim(),year:d.year,gm:d.gm,gy:d.gy,exp:d.exp.trim(),linkedin:d.linkedin.trim(),field:d.field,skills:[...d.skills],bio:d.bio.trim(),photo:d.photo,cvVideo:d.cvVideo,cvDoc:d.cvDoc};
 bar();if(!quiet)toast("Profile saved")}
+const optGroups=sel=>Object.entries(INTERESTS).map(([g,l])=>`<optgroup label="${esc(g)}">${l.map(o=>`<option ${sel===o?"selected":""}>${esc(o)}</option>`).join("")}</optgroup>`).join("");
+const ftxt=(id,label,o)=>{o=o||{};return `<div class="fld-row"><div class="ffl"><input class="in" id="${id}" type="${o.type||"text"}" placeholder="${o.ph||" "}" autocomplete="off" value="${esc(o.value||"")}"${o.extra||""}><label for="${id}">${label}</label></div>${o.hint?`<div class="hint">${o.hint}</div>`:""}${o.errId?`<div class="err" id="${o.errId}" role="alert" hidden></div>`:""}</div>`};
+const fsel=(id,label,opts,o)=>{o=o||{};return `<div class="fld-row"><div class="ffl sel"><select class="in" id="${id}">${opts}</select><label for="${id}">${label}</label></div>${o.hint?`<div class="hint">${o.hint}</div>`:""}</div>`};
+const farea=(id,label,o)=>{o=o||{};return `<div class="fld-row"><div class="ffl"><textarea class="in" id="${id}" placeholder="${o.ph||" "}"${o.min?` style="min-height:${o.min}px"`:""}>${esc(o.value||"")}</textarea><label for="${id}">${label}</label></div>${o.hint?`<div class="hint">${o.hint}</div>`:""}</div>`};
+const localDT=d=>{const p=x=>String(x).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes())};
+const fmtDeadline=ts=>new Date(ts).toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true});
 function mine(){
 const g=gate("business","Log in to set up your business profile.");if(g)return g;
 if(S.myCo)return dashboard();
-return `<h1 style="font-size:32px;margin-bottom:6px">Set up your business profile</h1><p class="meta" style="margin-bottom:16px">Students will see this on every internship you post.</p><div class="panel"><div class="grid">
-<div><label for="cn">Business name</label><input class="in" id="cn" value="${esc(S.user?S.user.name:"")}"></div>
-<div><label for="ci">Industry</label><select class="in" id="ci">${INDUSTRIES.map(f=>`<option>${f}</option>`).join("")}</select></div>
-<div class="full"><label for="cl">Location</label><input class="in" id="cl" placeholder="e.g. Manchester"></div>
-<div class="full"><label for="ca">About your business</label><textarea class="in" id="ca"></textarea></div>
-<div class="full"><button class="btn" onclick="saveCo()">Create business profile</button></div></div></div>`}
+return `<h1 style="font-size:36px;margin-bottom:6px">Set up your business profile</h1><p class="meta" style="margin:0 0 20px">Students will see this on every internship you post.</p><div class="panel pform"><section class="fsec"><h2 class="fh">About your business</h2>
+${ftxt("cn","Business name",{value:S.user?S.user.name:""})}
+<div class="fgrid">${fsel("ci","Industry",INDUSTRIES.map(f=>`<option>${f}</option>`).join(""))}${ftxt("cl","Location",{ph:"e.g. Manchester"})}</div>
+${farea("ca","About your business",{min:140,ph:"What you do and what an intern can expect"})}
+<button class="btn big" onclick="saveCo()">Create business profile</button></section></div>`}
 function saveCo(){
 const name=v("cn");if(!name){toast("Add your business name first");return}
 const c={id:S.next++,name,ind:document.getElementById("ci").value,loc:v("cl")||"Remote",about:v("ca")||"No description yet."};
@@ -738,23 +746,32 @@ S.cos.push(c);S.myCo=c;toast("Business profile created");go("mine")}
 function post(){
 const g=gate("business","Log in to post an internship.");if(g)return g;
 if(!S.myCo)return `<div class="panel"><h2>Create your business profile first</h2><p class="meta">Internships are listed under your business.</p><button class="btn" onclick="go('mine')">Set up business profile</button></div>`;
-return `<h1 style="font-size:32px;margin-bottom:16px">Post an internship</h1><div class="panel"><div class="grid">
-<div class="full"><label for="pt">Role title</label><input class="in" id="pt" placeholder="e.g. Marketing intern"></div>
-<div><label for="pf">Field</label><select class="in" id="pf">${FIELDS.map(f=>`<option>${f}</option>`).join("")}</select></div>
-<div><label for="py">Work style</label><select class="in" id="py"><option>On-site</option><option>Hybrid</option><option>Remote</option></select></div>
-<div class="full"><label for="pc-loc">Location</label><input class="in" id="pc-loc" list="loc-list" autocomplete="off" value="${esc(S.myCo.loc)}" placeholder="e.g. Liverpool"><datalist id="loc-list">${["Liverpool","Manchester","London","Leeds","Birmingham","Sheffield","Newcastle","Bristol","Glasgow","Edinburgh","Cardiff","Nottingham"].map(l=>`<option value="${l}">`).join("")}</datalist><div class="hint">Where the intern will be based. For remote roles, use the nearest city so students can find it.</div></div>
-<div><label for="pd">Duration</label><input class="in" id="pd" placeholder="e.g. 8 weeks"></div>
-<div><label for="pl">Apply by</label><input class="in" id="pl" placeholder="e.g. 20 Dec"></div>
-<div class="full"><div class="slotrow"><div><label for="pp-amt">Pay (&pound;)</label><input class="in" id="pp-amt" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 12.50"></div><div><label for="pp-per">Per</label><select class="in" id="pp-per"><option value="hour">Hour</option><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option><option value="total">Total for the internship</option></select></div></div><div class="err" id="pp-err" role="alert" hidden></div></div>
-<div class="full"><label for="pp-note">Salary details (optional)</label><input class="in" id="pp-note" placeholder="e.g. 25 hours a week, paid monthly"><div class="hint">All RightTern internships are paid. Tell students what to expect, like hours and when they are paid.</div></div>
-<div class="full"><label for="ps-skill">Skills you are looking for <span class="count" id="ps-count" aria-live="polite"></span></label><div class="chips cwrap" id="ps-chips"><span id="ps-chiplist" style="display:contents"></span><input id="ps-skill" role="combobox" aria-expanded="false" aria-controls="ps-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill, like Communication"><ul class="opts" id="ps-list" role="listbox" hidden></ul></div><div class="hint">Up to 5. We use these to suggest students who fit, and students see them on the listing.</div></div>
-<div class="full"><label for="pe">What will the intern do?</label><textarea class="in" id="pe"></textarea></div>
-<div class="full"><button class="btn" onclick="savePost()">Publish internship</button></div></div></div>`}
+return `<h1 style="font-size:36px;margin-bottom:6px">Post an internship</h1><p class="meta" style="margin:0 0 20px">Students see this on the listing. Every internship on RightTern is paid.</p><div class="panel pform">
+<section class="fsec"><h2 class="fh">The role</h2>
+${ftxt("pt","Role title",{ph:"e.g. Marketing intern"})}
+<div class="fgrid">${fsel("pf","Field",`<option value="">Choose</option>${optGroups("")}`)}${fsel("py","Work style","<option>On-site</option><option>Hybrid</option><option>Remote</option>")}</div>
+${ftxt("pc-loc","Location",{value:S.myCo.loc,ph:"e.g. Liverpool",extra:' list="loc-list"',hint:"Use the nearest city for remote roles."})}<datalist id="loc-list">${["Liverpool","Manchester","London","Leeds","Birmingham","Sheffield","Newcastle","Bristol","Glasgow","Edinburgh","Cardiff","Nottingham"].map(l=>`<option value="${l}">`).join("")}</datalist>
+</section>
+<section class="fsec"><h2 class="fh">Time and pay</h2>
+<div class="fgrid">${ftxt("pd","Duration",{ph:"e.g. 8 weeks"})}
+<div class="fld-row"><div class="ffl sel"><input class="in" type="datetime-local" id="pl" min="${localDT(new Date())}"><label for="pl">Apply by</label></div><div class="hint">Optional. Click to pick a date and time.</div><div class="err" id="pl-err" role="alert" hidden></div></div>
+${ftxt("pp-amt","Pay (&pound;)",{type:"number",ph:"e.g. 12.50",extra:' min="0" step="0.01" inputmode="decimal"',errId:"pp-err"})}
+${fsel("pp-per","Per",'<option value="hour">Hour</option><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option><option value="total">Total for the internship</option>')}</div>
+${ftxt("pp-note","Salary details (optional)",{ph:"e.g. 25 hours a week, paid monthly"})}
+</section>
+<section class="fsec"><h2 class="fh">Skills and description</h2>
+<div class="fld-row"><div class="ffl chipsfl"><div class="chips cwrap" id="ps-chips"><span id="ps-chiplist" style="display:contents"></span><input id="ps-skill" role="combobox" aria-expanded="false" aria-controls="ps-list" aria-autocomplete="list" autocomplete="off" placeholder="Type a skill"><ul class="opts" id="ps-list" role="listbox" hidden></ul></div><label for="ps-skill">Skills you are looking for <span class="count" id="ps-count" aria-live="polite"></span></label></div><div class="hint">Up to 5. We use these to suggest students who fit.</div></div>
+${farea("pe","What will the intern do?",{min:140})}
+</section>
+<section class="fsec"><button class="btn big" onclick="savePost()">Publish internship</button></section></div>`}
 function savePost(){
-const title=v("pt");if(!title){toast("Add a role title first");return}
+const title=v("pt");if(!title){toast("Add a role title first");document.getElementById("pt").focus();return}
+if(!document.getElementById("pf").value){toast("Choose a field first");document.getElementById("pf").focus();return}
 const amt=parseFloat(document.getElementById("pp-amt").value);
 if(!(amt>0)){const e=document.getElementById("pp-err");e.textContent="Add what the internship pays. All RightTern internships are paid.";e.hidden=false;document.getElementById("pp-amt").focus();return}
-S.jobs.unshift({id:S.next++,co:S.myCo.id,title,field:document.getElementById("pf").value,type:document.getElementById("py").value,pay:{amt:String(amt),per:document.getElementById("pp-per").value,note:v("pp-note")},loc:v("pc-loc")||S.myCo.loc,dur:v("pd")||"TBC",dl:v("pl")||"Open",skills:[...S.postSkills],desc:v("pe")||"Details coming soon."});
+const dlv=document.getElementById("pl").value,dlTs=dlv?new Date(dlv).getTime():0;
+if(dlv&&dlTs<=Date.now()){const e=document.getElementById("pl-err");e.textContent="Pick a date and time in the future.";e.hidden=false;document.getElementById("pl").focus();return}
+S.jobs.unshift({id:S.next++,co:S.myCo.id,title,field:document.getElementById("pf").value,type:document.getElementById("py").value,pay:{amt:String(amt),per:document.getElementById("pp-per").value,note:v("pp-note")},loc:v("pc-loc")||S.myCo.loc,dur:v("pd")||"TBC",dl:dlTs?fmtDeadline(dlTs):"Open",dlTs,skills:[...S.postSkills],desc:v("pe")||"Details coming soon."});
 toast("Internship published");go("mine")}
 function authBtns(){
 if(S.user)return `<div class="who"><button class="who-btn ${isOn(homeView())?"on":""}" onclick="go('${homeView()}')" aria-label="${homeLabel()}" title="${homeLabel()}">${avatarHtml(S.user.role==="student"?(S.profile&&S.profile.photo):(S.myCo&&S.myCo.logo),S.user.name,"sm")}<span class="uname">${esc(S.user.name)}</span>${S.user.role==="student"&&vetStatus()==="approved"?`<span title="Verified student" role="img" aria-label="Verified student">${VTICK(16)}</span>`:""}</button><button class="btn ghost sm" onclick="logout()">Log out</button></div>`;
@@ -1098,14 +1115,22 @@ function dashboard(){
 const c=S.myCo,js=S.jobs.filter(j=>j.co===c.id),all=S.apps.filter(a=>js.some(j=>j.id===a.job));
 const nw=all.filter(a=>a.status==="new").length,open=js.filter(j=>j.open!==false).length;
 const rows=js.map(j=>{const n=appsFor(j.id),nn=n.filter(a=>a.status==="new").length,isOpen=j.open!==false;
-return `<div class="jobrow"><div style="min-width:0"><h3>${esc(j.title)}${isOpen?"":` <span class="tag">Closed</span>`}</h3>${tags(j)}</div>
-<div class="jr-r"><span class="cpill">${n.length} applicant${n.length===1?"":"s"}${nn?`, ${nn} new`:""}</span><button class="btn sm" onclick="go('applicants',${j.id})">View applicants</button><button class="btn ghost sm" onclick="go('suggested',${j.id})">Suggested shortlist</button><button class="btn ghost sm" onclick="toggleJob(${j.id})">${isOpen?"Close":"Reopen"}</button></div></div>`}).join("");
+const nApps=S.apps.filter(a=>a.job===j.id).length;
+return `<div class="jobrow"><div style="min-width:0"><h3>${esc(j.title)}${isOpen?"":` <span class="tag">Closed</span>`}</h3>${tags(j)}${S.confirmDel===j.id?`<div class="ivbox" style="background:var(--surf)" role="alertdialog" aria-label="Delete this internship"><h3>Delete this internship?</h3><p class="meta" style="margin:4px 0 12px;max-width:42em">This removes it for good, along with ${nApps} application${nApps===1?"":"s"} and any interviews and invitations for it. You cannot undo this. If you only want students to stop applying, choose Close instead.</p><div class="cta-row"><button class="btn danger-solid sm" onclick="deleteJob(${j.id})">Yes, delete it</button><button class="btn ghost sm" onclick="cancelDelete()">Keep it</button></div></div>`:""}</div>
+<div class="jr-r"><span class="cpill">${n.length} applicant${n.length===1?"":"s"}${nn?`, ${nn} new`:""}</span><button class="btn sm" onclick="go('applicants',${j.id})">View applicants</button><button class="btn ghost sm" onclick="go('suggested',${j.id})">Suggested shortlist</button><button class="btn ghost sm" onclick="toggleJob(${j.id})">${isOpen?"Close":"Reopen"}</button><button class="btn ghost danger sm" onclick="askDelete(${j.id})">Delete</button></div></div>`}).join("");
 return `<div class="dash-head"><div class="dh-l">${coBadge(c,"lg")}<div><h1>${esc(c.name)}</h1><div class="meta">${esc(c.ind)} in ${esc(c.loc)}</div></div></div>
 <div class="cta-row"><button class="btn ghost sm" onclick="go('company',${c.id})">View public page</button><button class="btn ghost sm" onclick="go('editco')">Edit company profile</button><button class="btn sm" onclick="go('post')">Post an internship</button></div></div>
 <p class="summary">${js.length?`<b>${nw} new</b> to review. ${all.length} applicant${all.length===1?"":"s"} across ${js.length} internship${js.length===1?"":"s"}, ${open} open.`:"You have not posted an internship yet."}</p>
 <h2 style="font-size:20px;margin-bottom:10px">Your internships</h2>
 ${js.length?`<div class="list">${rows}</div>`:`<div class="list"><div class="empty">Post your first internship and students can start applying.<div style="margin-top:12px"><button class="btn" onclick="go('post')">Post an internship</button></div></div></div>`}`}
 function toggleJob(id){const j=S.jobs.find(x=>x.id===id);j.open=j.open===false;toast(j.open?"Internship reopened":"Internship closed. Students can no longer apply.");render()}
+function askDelete(id){S.confirmDel=id;render()}
+function cancelDelete(){S.confirmDel=null;render()}
+function deleteJob(id){
+if(!ownJob(id))return;
+S.jobs.splice(S.jobs.findIndex(x=>x.id===id),1);
+S.apps=S.apps.filter(a=>a.job!==id);S.invites=S.invites.filter(i=>i.job!==id);S.interviews=S.interviews.filter(i=>i.job!==id);
+S.confirmDel=null;toast("Internship deleted");render()}
 function setAppFilter(f){S.appFilter=f;render()}
 function ownJob(id){const j=S.jobs.find(x=>x.id==id);return j&&S.myCo&&j.co===S.myCo.id?j:null}
 function applicants(){
@@ -1145,13 +1170,12 @@ const g=gate("business","Log in to edit your company profile.");if(g)return g;
 if(!S.myCo)return `<div class="panel"><h2>Create your business profile first</h2><button class="btn" onclick="go('mine')">Set up business profile</button></div>`;
 if(!S.coDraft)initCoDraft();const d=S.coDraft;
 const inds=INDUSTRIES.includes(d.ind)?INDUSTRIES:[d.ind,...INDUSTRIES];
-return `<button class="back" onclick="go('mine')">Back to dashboard</button><h1 style="font-size:32px;margin-bottom:16px">Company profile</h1><div class="split"><div class="panel"><div class="stack">
-<div><label>Logo</label><div class="photo"><div id="co-logo">${coBadge(d,"xl")}</div><div><div class="cta-row"><button type="button" class="btn ghost sm" id="co-up">${d.logo?"Change logo":"Upload logo"}</button><button type="button" class="btn ghost sm" id="co-rm" ${d.logo?"":"hidden"}>Remove</button></div><input type="file" id="co-file" accept="image/*" hidden><div class="hint">JPG or PNG. A square logo on a plain background looks best.</div><div class="err" id="co-msg" role="alert" hidden></div></div></div></div>
-<div><label for="co-name">Business name</label><input class="in" id="co-name" value="${esc(d.name)}"></div>
-<div><label for="co-ind">Industry</label><select class="in" id="co-ind">${inds.map(o=>`<option ${o===d.ind?"selected":""}>${esc(o)}</option>`).join("")}</select></div>
-<div><label for="co-loc">Location</label><input class="in" id="co-loc" placeholder="e.g. Manchester" value="${esc(d.loc)}"></div>
-<div><label for="co-about">About your business</label><textarea class="in" id="co-about" style="min-height:140px">${esc(d.about)}</textarea><div class="hint">Say what you do and what an intern can expect. Students read this before they apply.</div></div>
-<button class="btn" onclick="saveEditCo()" style="justify-self:start">Save company profile</button></div></div>
+return `<button class="back" onclick="go('mine')">Back to dashboard</button><h1 style="font-size:36px;margin-bottom:16px">Company profile</h1><div class="split"><div class="panel pform"><section class="fsec"><h2 class="fh">Your business</h2>
+<div><div class="tlabel">Logo</div><div class="photo"><div id="co-logo">${coBadge(d,"xl")}</div><div><div class="cta-row"><button type="button" class="btn ghost sm" id="co-up">${d.logo?"Change logo":"Upload logo"}</button><button type="button" class="btn ghost sm" id="co-rm" ${d.logo?"":"hidden"}>Remove</button></div><input type="file" id="co-file" accept="image/*" hidden><div class="hint">JPG or PNG. A square logo looks best.</div><div class="err" id="co-msg" role="alert" hidden></div></div></div></div>
+${ftxt("co-name","Business name",{value:d.name})}
+<div class="fgrid">${fsel("co-ind","Industry",inds.map(o=>`<option ${o===d.ind?"selected":""}>${esc(o)}</option>`).join(""))}${ftxt("co-loc","Location",{value:d.loc,ph:"e.g. Manchester"})}</div>
+${farea("co-about","About your business",{value:d.about,min:160,ph:"What you do and what an intern can expect"})}
+<button class="btn big" onclick="saveEditCo()">Save company profile</button></section></div>
 <aside class="panel pv" id="co-pv" aria-live="polite">${coPv()}</aside></div>`}
 function initEditCo(){
 const d=S.coDraft,$=id=>document.getElementById(id);
@@ -1192,7 +1216,7 @@ const FIELD_MAP={Design:["Art & Design","Architecture","Fashion & Textiles","Gam
 const today=()=>new Date().toLocaleDateString("en-GB",{day:"numeric",month:"short"});
 function matchScore(s,j){
 const have=(s.skills||[]).map(x=>x.toLowerCase()),want=j.skills||[];
-const fieldOk=!!(FIELD_MAP[j.field]&&FIELD_MAP[j.field].includes(s.field));
+const fieldOk=!!j.field&&!!s.field&&(j.field===s.field||Object.values(FIELD_MAP).some(a=>a.includes(j.field)&&a.includes(s.field)));
 const hit=want.filter(x=>have.includes(x.toLowerCase())),miss=want.filter(x=>!have.includes(x.toLowerCase()));
 const score=want.length?(fieldOk?40:0)+Math.round(60*hit.length/want.length):(fieldOk?100:0);
 let tier="";
@@ -1285,9 +1309,10 @@ ${mine.length?`<h2 style="font-size:20px;margin-bottom:10px">Invitations</h2><di
 ${ranked.length?`<div class="list">${rows}</div>`:`<div class="list"><div class="empty">No matches yet. Add a field of interest and your top skills to your profile and we will find internships that fit.<div style="margin-top:12px"><button class="btn" onclick="go('profile')">Update your profile</button></div></div></div>`}
 ${gapList.length?`<div class="sec" style="margin-top:28px"><h2 style="font-size:20px;margin-bottom:10px">Skills that would strengthen your matches</h2><div class="tags" style="margin-top:0">${gapList.map(([k,n])=>`<span class="tag">${esc(k)}, wanted in ${n} of your targets</span>`).join("")}</div><p class="rsn">You can show up to 5 skills on your profile, so pick the ones that matter most.</p></div>`:""}`}
 function initPost(){
+{const pl=document.getElementById("pl");if(pl){const open=()=>{try{pl.showPicker()}catch(e){}};pl.addEventListener("click",open)}}
 const $=id=>document.getElementById(id),sk=$("ps-skill"),cl=$("ps-chiplist"),chips=$("ps-chips");
 const draw=()=>{cl.innerHTML=S.postSkills.map((s,i)=>`<span class="chip2">${esc(s)}<button type="button" aria-label="Remove ${esc(s)}" data-rm="${i}">&times;</button></span>`).join("");
-const n=S.postSkills.length;$("ps-count").textContent=n+" of "+MAX_SKILLS;sk.placeholder=n>=MAX_SKILLS?"Remove a skill to add another":"Type a skill, like Communication"};
+const n=S.postSkills.length;$("ps-count").textContent=n+" of "+MAX_SKILLS;sk.placeholder=n>=MAX_SKILLS?"Remove a skill to add another":"Type a skill"};
 draw();
 const add=v=>{let n=v.replace(/\s+/g," ").trim().slice(0,40);if(!n)return;
 const known=SKILLS.find(s=>s.n.toLowerCase()===n.toLowerCase());if(known)n=known.n;
@@ -1340,16 +1365,15 @@ const a=S.apps.find(x=>x.id==S.id),j=a&&ownJob(a.job);
 if(!a||!j)return `<div class="panel"><h2>Applicant not found</h2><button class="btn" onclick="go('mine')">Back to dashboard</button></div>`;
 if(!S.sch)go('schedule',a.id);
 const f=S.sch,min=new Date().toISOString().slice(0,10);
-const slots=f.slots.map((s,k)=>`<div class="slotrow"><div><label for="sd${k}">Option ${k+1} date${k?" (optional)":""}</label><input class="in" type="date" id="sd${k}" min="${min}" value="${esc(s.d)}"></div><div><label for="st${k}">Time</label><input class="in" type="time" id="st${k}" value="${esc(s.t)}"></div></div>`).join("");
+const slots=f.slots.map((s,k)=>`<div class="fgrid"><div class="fld-row"><div class="ffl sel"><input class="in" type="date" id="sd${k}" min="${min}" value="${esc(s.d)}"><label for="sd${k}">Option ${k+1} date${k?" (optional)":""}</label></div></div><div class="fld-row"><div class="ffl sel"><input class="in" type="time" id="st${k}" value="${esc(s.t)}"><label for="st${k}">Time</label></div></div></div>`).join("");
 return `<button class="back" onclick="go('applicant',${a.id})">Back to ${esc(a.student.name)}</button>
-<h1 style="font-size:30px;margin-bottom:4px">Invite ${esc(a.student.name)} to interview</h1><div class="meta" style="margin-bottom:16px">${esc(j.title)}</div>
-<div class="panel" style="max-width:640px"><div class="stack">
-<div><div class="meta" style="margin:0 0 8px;font-weight:600;color:var(--ink)">Times you can do</div><div class="stack">${slots}</div><div class="hint">Offer two or three so there is a good chance one works. The student picks one.</div><div class="err" id="sc-err" role="alert" hidden></div></div>
-<div class="slotrow"><div><label for="sc-dur">Length</label><select class="in" id="sc-dur">${["15","30","45","60"].map(x=>`<option value="${x}" ${f.dur===x?"selected":""}>${x} minutes</option>`).join("")}</select></div>
-<div><label for="sc-mode">Format</label><select class="in" id="sc-mode">${["Video call","In person","Phone call"].map(x=>`<option ${f.mode===x?"selected":""}>${x}</option>`).join("")}</select></div></div>
-<div><label for="sc-where">Link or address</label><input class="in" id="sc-where" placeholder="Meeting link, address or phone number" value="${esc(f.where)}"></div>
-<div><label for="sc-note">Message to the student (optional)</label><textarea class="in" id="sc-note" placeholder="Who they will meet, and anything to prepare">${esc(f.note)}</textarea></div>
-<div class="cta-row"><button class="btn" onclick="sendIv(${a.id})">Send times</button><button class="btn ghost" onclick="go('applicant',${a.id})">Cancel</button></div></div></div>`}
+<h1 style="font-size:36px;margin-bottom:4px">Invite ${esc(a.student.name)} to interview</h1><div class="meta" style="margin-bottom:20px">${esc(j.title)}</div>
+<div class="panel pform" style="max-width:680px"><section class="fsec"><h2 class="fh">Times you can do</h2><div class="stack" style="gap:16px">${slots}</div><div class="hint" style="margin:0 0 0 4px">Offer two or three so one is likely to work.</div><div class="err" id="sc-err" role="alert" hidden></div></section>
+<section class="fsec"><h2 class="fh">Details</h2>
+<div class="fgrid">${fsel("sc-dur","Length",["15","30","45","60"].map(x=>`<option value="${x}" ${f.dur===x?"selected":""}>${x} minutes</option>`).join(""))}${fsel("sc-mode","Format",["Video call","In person","Phone call"].map(x=>`<option ${f.mode===x?"selected":""}>${x}</option>`).join(""))}</div>
+${ftxt("sc-where","Link or address",{value:f.where,ph:"Meeting link, address or phone number"})}
+${farea("sc-note","Message to the student (optional)",{value:f.note,min:110,ph:"Who they will meet, and anything to prepare"})}
+<div class="stack" style="gap:12px"><button class="btn big" onclick="sendIv(${a.id})">Send times</button><button class="btn ghost big" onclick="go('applicant',${a.id})">Cancel</button></div></section></div>`}
 function sendIv(appId){
 const a=S.apps.find(x=>x.id==appId),j=ownJob(a.job);const val=id=>document.getElementById(id).value.trim();
 const slots=[],now=Date.now();let bad="";
