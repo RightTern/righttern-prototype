@@ -147,8 +147,8 @@ textarea.in{min-height:96px;resize:vertical}
 .demo p{margin:0 0 8px}
 .prog{height:10px;border-radius:99px;background:var(--tint);border:1px solid var(--line);overflow:hidden}
 .prog>span{display:block;height:100%;background:var(--sun);border-radius:99px;transition:width .2s}
-.steps{display:flex;gap:6px 16px;flex-wrap:wrap;margin:0 0 14px;padding:0;list-style:none;font-size:13px;color:var(--mute)}
-.steps li.on{color:var(--ink);font-weight:600}
+.vsteps{display:flex;gap:6px 16px;flex-wrap:wrap;margin:0 0 14px;padding:0;list-style:none;font-size:13px;color:var(--mute)}
+.vsteps li.on{color:var(--ink);font-weight:600}
 .ck{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:2px 16px;grid-template-columns:repeat(3,1fr);font-size:15px}
 .ck button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-radius:8px;padding:7px 8px;color:var(--ink);font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
 .ck button:hover,.ck button:focus-visible{background:var(--tint)}
@@ -439,7 +439,7 @@ const tech=SKILLS.filter(s=>s.c==="Tool or technical").map(s=>s.n),soft=SKILLS.f
 return `<section class="band herob" style="padding-bottom:64px"><span class="fl a">${MARK}</span><span class="fl b">${MARK}</span><span class="fl c">${MARK}</span><span class="fl d">${MARK}</span>
 <div class="bandin"><h1>Real experience for students. Reliable support for businesses.</h1>
 <p>RightTern is a student-founded internship placement service. We match businesses with talented students for projects of all kinds, from short one-off pieces of work to internships that run for several months.</p>
-<div class="cta-row"><button class="btn" onclick="start('student')">Find an internship</button><button class="btn ghost" onclick="start('business')">Hire a student</button><button class="btn ghost" onclick="go('about')">About us</button></div></div></section>
+<div class="cta-row"><button class="btn" onclick="start('student')">Find an internship</button><button class="btn ghost" onclick="start('business')">Hire a student</button></div></div></section>
 <section class="band navy" style="padding-block:18px" aria-label="What we offer">${marquee(fields,x=>`<span class="mword">${esc(x)}</span>`)}</section>
 <section class="band tint"><div class="bandin"><h2 class="bh rv">How it works</h2><ol class="steps">
 <li class="step big rv"><div class="n">1</div><h3>Students build a profile</h3><p>Add your course, skills and interests once, and use it for every application.</p></li>
@@ -913,7 +913,7 @@ return "no"}
 function verify(){
 const g=gate("student","Log in to verify your university email.");if(g)return g;
 const v=S.user.vet||(S.user.vet={});
-const steps=n=>`<ol class="steps"><li class="${n===1?"on":""}">1. Verify your university email</li><li class="${n===2?"on":""}">2. Complete your profile</li><li>3. Submit for review</li></ol>`;
+const steps=n=>`<ol class="vsteps"><li class="${n===1?"on":""}">1. Verify your university email</li><li class="${n===2?"on":""}">2. Complete your profile</li><li>3. Submit for review</li></ol>`;
 if(v.verified||v.idSent)return `<div class="auth">${steps(2)}<h1>${v.verified?"Your university email is verified":"We have your document"}</h1><div class="panel"><p class="meta" style="margin:0 0 20px">${v.verified?"Verified: "+esc(v.email)+" at "+esc(v.uni)+".":"We will check it by hand along with your profile, then delete it."}</p><button class="btn big" onclick="go('profile')">Continue to your profile</button></div></div>`;
 if(!S.ver)S.ver={step:1,uni:(S.profile&&S.profile.school)||"",email:"",err:{}};
 const x=S.ver,er=x.err||{};
